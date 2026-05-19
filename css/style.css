@@ -475,8 +475,16 @@ a {
   font-size: 16px;
   opacity: 0.75;
   min-height: 20px;
+
   white-space: nowrap;
-  overflow: hidden;
-  border-right: 1px solid rgba(0,0,0,0.4);
-  width: fit-content;
+
+  /* 不再强行裁切 */
+  overflow: visible;
+
+  /* 去掉硬光标 */
+  border-right: none;
+
+  /* 增加一点呼吸感 */
+  letter-spacing: 0.3px;
+  transition: opacity 0.3s ease;
 }
