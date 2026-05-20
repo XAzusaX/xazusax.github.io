@@ -60,25 +60,73 @@ This project follows a simple versioning system:
 
 ---
 
-## [0.3.0] - planned
-
+## [0.3.0] - 2026-05-22 4:42
 ### Added
-- Novel system foundation (story entry structure)
-- Dedicated reading pages for individual novels
-- Archive-style navigation between stories
+- Core archive structure foundation completed
+- Novel system architecture established (data-driven entry system)
+- Individual novel reading page routing (multi-page support)
+- Basic Library index page (static fallback version)
+
+### Changed
+- Removed dynamic Home Library module (moved to future data system phase)
+- Simplified Home page architecture for performance and stability
 
 ### Planned Features
-- Interactive novel opening animation (file unlock effect)
-- Chapter-based reading system
-- Story metadata system (title, status, tags)
-- Improved reading UI (archive viewer mode)
-- Seamless transition between Library and Novel pages
+- JSON-based unified content system (Library + Latest Updates + Novels)
+- Interactive “archive unlock” animation system for novels
+- Chapter-based reading system (multi-chapter loader)
+- Metadata system (title / status / tags / progress)
+- Archive viewer mode (immersive reading UI)
+- Transition animations between Library ↔ Novel pages
+
+### UI / UX Direction
+- Evolve from “static pages” → “data-driven archive system”
+- Introduce structured hierarchy:
+  Home → Library Index → Novel Archive → Chapter View
+- Improve consistency between all content entry points
+
+## [0.4.0] - planned
+
+### Added
+- Complete novel reading system foundation (Reader Engine v1)
+- Chapter-based architecture for all novels
+- Dedicated novel reading page template (unified layout)
+- JSON-driven story content system (novel + chapter metadata)
+
+### Core System
+- Implemented chapter routing system (URL-based navigation)
+  - Example: /novels/tne.html?chapter=1
+- Structured chapter data model (title, content, order)
+- Dynamic chapter loader (fetch-based content injection)
+- Reading state management (current chapter tracking)
 
 ### UI / UX
-- Expand "Library" into a structured story index system
-- Introduce deeper archive hierarchy for stories
+- Built immersive reading mode (focus-first layout)
+- Added chapter navigation controls (prev / next)
+- Added progress indicator (chapter index display)
+- Improved typography for long-form reading
+- Reduced UI distraction during reading mode
 
----
+### Changed
+- Library system now acts as entry gateway only (no content rendering)
+- Removed static chapter pages (fully replaced by dynamic loader system)
+- Separated “Archive Index” and “Reading Experience” layers
+
+### Planned Features
+- Animated page transitions between chapters (fade / slide / glitch)
+- Bookmark system (save last reading position)
+- Auto-scroll reading mode (optional immersive mode)
+- Chapter unlock progression system
+- Text segmentation system (scene-based breaks inside chapters)
+- Reading memory system (previously read highlighting)
+
+### Architecture Direction
+- Home → Index Gateway
+- Library → Archive Entry System
+- Novel Page → Dynamic Reader Engine
+- Chapter → JSON-driven content blocks
+
+This version marks the transition from static archive UI → full dynamic reading system.
 
 ## [1.0.0] - future release
 
