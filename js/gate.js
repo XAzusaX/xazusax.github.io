@@ -1,7 +1,7 @@
 const input = document.getElementById("codeInput");
 const status = document.getElementById("status");
 
-const PASSWORD = "Stories";
+const PASSWORD = "Azusa";
 let locked = false;
 
 // =========================

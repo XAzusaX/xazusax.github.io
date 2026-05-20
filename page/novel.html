@@ -3,16 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reverie Archive</title>
+  <title>RA - Library</title>
+
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/novel.css" />
 </head>
 
 <body>
 
-  <!-- 背景 -->
+  <!-- =========================
+       BACKGROUND
+  ========================= -->
   <div class="bg"></div>
 
-  <!-- 导航 -->
+  <!-- =========================
+       NAVIGATION
+  ========================= -->
   <header class="nav">
 
     <a href="../index.html" class="logo">
@@ -21,30 +27,73 @@
     </a>
 
     <nav class="links">
-      <a href="../index.html" class="nav-item active">
+
+      <a href="../index.html" class="nav-item">
         <img src="../assets/icons/home.svg" class="icon" />
         Home
       </a>
 
-      <a href="gate.html" class="nav-item">
+      <a href="../page/novel.html" class="nav-item active">
         <img src="../assets/icons/library.svg" class="icon" />
         Library
       </a>
+
     </nav>
 
   </header>
 
-  <!-- 主体 -->
+  <!-- =========================
+       MAIN
+  ========================= -->
   <main class="page">
 
-    <!-- Footer -->
+    <!-- HERO -->
+    <section class="hero reveal active">
+
+      <h1 class="title">Library</h1>
+
+      <p class="quote typewriter" id="libQuote">
+        Every fragment here once meant something.
+      </p>
+
+      <div class="scroll-indicator">↓ Scroll to Explore ↓</div>
+
+    </section>
+
+    <!-- =========================
+         LIBRARY SECTION
+    ========================= -->
+    <section class="section glass reveal">
+
+      <h2>Featured Archives</h2>
+
+      <p class="subtext">
+        Stories stored inside Reverie Archive
+      </p>
+
+      <!-- 🔥 关键：这里只保留容器，不再写死卡片 -->
+      <div class="library-grid" id="libraryGrid"></div>
+
+    </section>
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
     <footer class="footer reveal">
-        <p>© 2026 Reverie Archive</p>
-        <p class="sub">Some stories remain unread, waiting in silence.</p>
+
+      <p>© 2026 Reverie Archive</p>
+      <p class="sub">Some stories remain unread, waiting in silence.</p>
+
     </footer>
 
   </main>
 
+  <!-- =========================
+       SCRIPTS
+  ========================= -->
+  <script src="../js/novels.js"></script>
   <script src="../js/novel.js"></script>
+  <script src="../js/init.js"></script>
+
 </body>
 </html>

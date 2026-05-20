@@ -5,28 +5,29 @@
   const el = document.getElementById("homeQuote");
   if (!el) return;
 
-const quotes = [
-  "Some stories are never finished, only paused.",
-  "A quiet world built from words.",
-  "You are now entering a private archive.",
-  "Every page remembers you.",
-  "Stories exist where memory fades.",
-  "This archive breathes in silence.",
-  "A collection of moments that never disappeared.",
-  "Where memories are stored, not lost.",
-  "Pages turn even when no one is watching.",
-  "A place built from forgotten thoughts.",
-  "Stories wait patiently to be read.",
-  "This archive holds what time left behind.",
-  "Not everything written is meant to end.",
-  "Some pages only exist in quiet spaces.",
-  "A record of things that once mattered.",
-  "Each entry is a trace of presence.",
-  "You are standing inside preserved time.",
-  "Words here are kept, not forgotten.",
-  "A soft archive of unfinished thoughts.",
-  "This is where silence becomes structure."
-];
+  const quotes = [
+    "Some stories are never finished, only paused.",
+    "A quiet world built from words.",
+    "You are now entering a private archive.",
+    "Every page remembers you.",
+    "Stories exist where memory fades.",
+    "This archive breathes in silence.",
+    "A collection of moments that never disappeared.",
+    "Where memories are stored, not lost.",
+    "Pages turn even when no one is watching.",
+    "A place built from forgotten thoughts.",
+    "Stories wait patiently to be read.",
+    "This archive holds what time left behind.",
+    "Not everything written is meant to end.",
+    "Some pages only exist in quiet spaces.",
+    "A record of things that once mattered.",
+    "Each entry is a trace of presence.",
+    "You are standing inside preserved time.",
+    "Words here are kept, not forgotten.",
+    "A soft archive of unfinished thoughts.",
+    "This is where silence becomes structure."
+  ];
+
   function pick() {
     return quotes[Math.floor(Math.random() * quotes.length)];
   }
@@ -50,8 +51,9 @@ const quotes = [
   });
 })();
 
+
 // =========================
-// ELEMENTS CACHE (HOME UI)
+// ELEMENTS CACHE
 // =========================
 const nav = document.querySelector(".nav");
 const hero = document.querySelector(".hero");
@@ -59,26 +61,20 @@ const reveals = document.querySelectorAll(".reveal");
 
 
 // =========================
-// SCROLL HANDLER
+// SCROLL SYSTEM
 // =========================
 function onScroll() {
   const scrollY = window.scrollY;
   const trigger = window.innerHeight * 0.85;
 
-  // NAV EFFECT
   if (nav) {
     nav.classList.toggle("scrolled", scrollY > 20);
   }
 
-  // HERO HIDE
   if (hero) {
-    hero.classList.toggle(
-      "hide",
-      scrollY > window.innerHeight * 0.6
-    );
+    hero.classList.toggle("hide", scrollY > window.innerHeight * 0.6);
   }
 
-  // REVEAL SYSTEM
   reveals.forEach((el) => {
     const top = el.getBoundingClientRect().top;
 
@@ -90,20 +86,55 @@ function onScroll() {
   });
 }
 
-
-// =========================
-// INIT HOME
-// =========================
 window.addEventListener("scroll", onScroll, { passive: true });
+window.addEventListener("load", onScroll);
 onScroll();
 
 
 // ======================================================
-// 404 MODULE (ISOLATED SAFE ZONE)
+// 🔥 LATEST UPDATE SYSTEM (INDEX)
+// ======================================================
+async function loadLatestUpdates() {
+  const container = document.getElementById("timeline");
+  if (!container) return;
+
+  try {
+    const res = await fetch("data/latest.json");
+    const data = await res.json();
+
+    container.innerHTML = "";
+
+    data.updates.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "timeline-item";
+
+      div.innerHTML = `
+        <span class="time">${item.date}</span>
+        <p>${item.text}</p>
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.warn("Latest update load failed:", err);
+  }
+}
+
+// =========================
+// INIT
+// =========================
+window.addEventListener("DOMContentLoaded", () => {
+  loadLatestUpdates();
+  loadLibrary();
+});
+
+
+// ======================================================
+// 404 MODULE (UNCHANGED)
 // ======================================================
 (function () {
   const quoteEl404 = document.getElementById("randomQuote");
-
   if (!quoteEl404) return;
 
   const quoteList = [

@@ -1,0 +1,28 @@
+{
+  "books": [
+    {
+      "id": "TNE",
+      "title": "The Nonexistent World",
+      "desc": "Unknown",
+      "cover": "../assets/covers/TNE.png",
+      "link": "page/novels/tne.html",
+      "status": "active"
+    },
+    {
+      "id": "side",
+      "title": "Side Stories",
+      "desc": "Fragments & side narratives",
+      "cover": null,
+      "link": "page/novels/side.html",
+      "status": "active"
+    },
+    {
+      "id": "lost",
+      "title": "Lost Pages",
+      "desc": "Unstable or corrupted records",
+      "cover": null,
+      "link": "page/novels/none",
+      "status": "corrupted"
+    }
+  ]
+}

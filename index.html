@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reverie Archive</title>
+
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
@@ -26,7 +27,7 @@
         Home
       </a>
 
-      <a href="page/gate.html" class="nav-item">
+      <a href="page/novel.html" class="nav-item">
         <img src="assets/icons/library.svg" class="icon" />
         Library
       </a>
@@ -37,68 +38,36 @@
   <!-- 主体 -->
   <main class="page">
 
-    <!-- HERO（初始唯一主视觉） -->
+    <!-- HERO -->
     <section class="hero reveal active">
-        <h1 class="title">Welcome.</h1>
-        <p class="quote typewriter" id="homeQuote">A quiet archive of unfinished worlds.</p>
-        <div class="scroll-indicator">↓ Scroll to Explore ↓</div>
+      <h1 class="title">Welcome.</h1>
+      <p class="quote typewriter" id="homeQuote">
+        A quiet archive of unfinished worlds.
+      </p>
+      <div class="scroll-indicator">↓ Scroll to Explore ↓</div>
     </section>
 
-    <!-- Latest -->
+    <!-- =========================
+         Latest Updates (DYNAMIC)
+    ========================= -->
     <section class="section glass reveal">
-        <h2>Latest Updates</h2>
+      <h2>Latest Updates</h2>
 
-        <div class="timeline">
-
-        <div class="timeline-item">
-            <span class="time">2026.05</span>
-            <p>Reverie Archive is born.</p>
-        </div>
-
-        <div class="timeline-item">
-            <span class="time">—</span>
-            <p>First novel structure planned.</p>
-        </div>
-
-        </div>
-    </section>
-
-    <!-- Library -->
-    <section class="section glass reveal">
-        <h2>Library</h2>
-
-        <p class="subtext">Stories you can enter and read</p>
-
-        <div class="netflix-grid">
-
-        <a class="novel-card" href="page/gate.html">
-            <div class="cover"></div>
-            <div class="info">
-            <h3>Reverie Core</h3>
-            <p>Main story archive</p>
-            </div>
-        </a>
-
-        <a class="novel-card" href="page/gate.html">
-            <div class="cover"></div>
-            <div class="info">
-            <h3>Side Stories</h3>
-            <p>Short narratives</p>
-            </div>
-        </a>
-
-</div>
-
+      <!-- JS inject here -->
+      <div class="timeline" id="timeline"></div>
     </section>
 
     <!-- Footer -->
     <footer class="footer reveal">
-        <p>© 2026 Reverie Archive</p>
-        <p class="sub">Some stories remain unread, waiting in silence.</p>
+      <p>© 2026 Reverie Archive</p>
+      <p class="sub">Some stories remain unread, waiting in silence.</p>
     </footer>
 
   </main>
 
+  <!-- Scripts -->
   <script src="js/script.js"></script>
+  <script src="js/init.js"></script>
+
 </body>
 </html>
