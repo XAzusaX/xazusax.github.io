@@ -3,67 +3,103 @@
 A quiet archive of unfinished worlds.
 
 Some stories were never meant to end.  
-They were only placed here, waiting to be read again.
+They were only left behind — waiting to be opened again.
 
 ---
 
-## 🌙 What is this?
+## 🌙 Overview
 
-Reverie Archive is a small web-based story collection system.
+Reverie Archive is a lightweight, web-based narrative system.
 
 It is not a blog.  
-It is not a novel site.
+It is not a traditional novel site.
 
-It is a place where fragmented stories are stored.
+It is an archive interface for fragmented fiction.
+
+Each story exists as a structured entry inside a larger system.
 
 ---
 
-## 📖 How to read
+## 📖 Reading Experience
 
-- Open the Home page
-- Scroll through updates and library
-- Enter any story from the archive
-- Read chapter by chapter
+- Enter the archive from the home page
+- Browse the library of stored books
+- Select any narrative instance
+- Read chapter by chapter in immersive mode
 
 No accounts.  
 No tracking.  
-Just reading.
+No external interference.
+
+Only reading.
 
 ---
 
-## 🗂 Structure
+## 🗂 System Structure
 
-- `index.html` → Main archive entrance
-- `novels.html` → Story library
-- `404.html` → Lost page handler
-- `/css` → Visual system
-- `/js` → Interaction logic
-- `/assets` → Images & icons
+This project follows a data-driven architecture powered by Supabase.
+
+- `index.html` → Archive entry point
+- `novels.html` → Library (book system)
+- `book.html` → Story container page
+- `reader.html` → Chapter-based reading engine
+- `/css` → Visual presentation layer
+- `/js` → Interaction & system logic
+- `/assets` → Static media resources
+- Supabase → Core data backend (books & chapters)
 
 ---
 
-## ⚙️ Design philosophy
+## ⚙️ Architecture Concept
 
-- Minimal interface
-- Soft glass UI (iOS-inspired)
-- Scroll-based narrative flow
-- Light motion, not distraction
+The system is built around three layers:
 
-The goal is silence, not noise.
+1. **Library Layer** → Books (metadata, covers, status)
+2. **Narrative Layer** → Chapters (structured story content)
+3. **Reader Layer** → Dynamic rendering engine
+
+Each book is an independent narrative unit inside the archive.
+
+---
+
+## 🎨 Design Philosophy
+
+- Minimal and quiet interface
+- Soft glass / blurred UI aesthetic
+- Scroll-based interaction flow
+- Subtle motion, never distracting
+- Reading-first layout design
+
+The system is designed to disappear behind the text.
+
+---
+
+## 🧠 Data System
+
+All content is dynamically loaded via Supabase:
+
+- `books` table → story entries
+- `chapters` table → narrative content
+- No hardcoded JSON content
+- Fully data-driven structure
 
 ---
 
 ## 🌐 Deployment
 
-This project is designed for GitHub Pages.
+Designed for GitHub Pages deployment.
 
-Simply push to repository and enable Pages.
+Simply push to repository and enable Pages in settings.
+
+No build process required.
 
 ---
 
-## ✨ Note
+## ✨ Notes
 
 Some stories may still be incomplete.  
-Some pages may feel empty.
+Some entries may feel fragmented or unstable.
 
-That is intentional.
+This is intentional.
+
+The archive is still expanding.
