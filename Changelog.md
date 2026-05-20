@@ -85,6 +85,10 @@ This project follows a simple versioning system:
   Home → Library Index → Novel Archive → Chapter View
 - Improve consistency between all content entry points
 
+## [0.3.1] - 2026-05-22 4:48
+### Changed
+-Resolve Issue 404 page did not show correctly
+
 ## [0.4.0] - planned
 
 ### Added
