@@ -56,27 +56,30 @@
 // MOBILE MENU
 // =========================
 (function () {
-  const hamburger = document.getElementById("hamburger");
-  const sideMenu = document.getElementById("sideMenu");
-  const overlay = document.getElementById("overlay");
-  const menuItems = document.querySelectorAll(".menu-item");
 
-  if (!hamburger || !sideMenu || !overlay) return;
+  function initMenu() {
+    const hamburger = document.getElementById("hamburger");
+    const sideMenu = document.getElementById("sideMenu");
+    const overlay = document.getElementById("overlay");
 
-  function toggleMenu() {
-    hamburger.classList.toggle("active");
-    sideMenu.classList.toggle("active");
-    overlay.classList.toggle("active");
+    if (!hamburger || !sideMenu || !overlay) return;
+
+    function toggle() {
+      hamburger.classList.toggle("active");
+      sideMenu.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
+    hamburger.addEventListener("click", toggle);
+    overlay.addEventListener("click", toggle);
   }
 
-  hamburger.addEventListener("click", toggleMenu);
-  overlay.addEventListener("click", toggleMenu);
-
-  menuItems.forEach(item => {
-    item.addEventListener("click", toggleMenu);
+  // 等 DOM + nav 注入完成
+  window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(initMenu, 0);
   });
-})();
 
+})();
 
 // =========================
 // SCROLL SYSTEM
@@ -192,4 +195,25 @@ window.addEventListener("DOMContentLoaded", () => {
   // 🔥 同樣改成立即執行，避免 load timing 問題
   typeWriter404(pickQuote());
   glitchLoop();
+})();
+
+(function () {
+
+  const backButton = document.getElementById("backButton");
+  if (!backButton) return;
+
+  backButton.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // 有上一頁
+    if (history.length > 1) {
+      history.back();
+    }
+
+    // 沒上一頁 → 回首頁
+    else {
+      window.location.href = "/index.html";
+    }
+  });
+
 })();

@@ -11,45 +11,16 @@
 
 <body>
 
-  <!-- 背景 -->
+  <!-- Background -->
   <div class="bg"></div>
 
-  <!-- 导航 -->
- <header class="nav">
+  <!-- NAV -->
+  <header id="nav"></header>
 
-  <!-- LEFT: logo -->
-  <a href="index.html" class="logo">
-    <img src="assets/logo.png" alt="logo" />
-    <span>Reverie Archive</span>
-  </a>
+  <div id="overlay"></div>
+  <div id="sideMenu"></div>
 
-  <!-- MOBILE hamburger -->
-  <div class="hamburger" id="hamburger">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-
-</header>
-
-<!-- MOBILE overlay (一定要移出 header) -->
-<div class="overlay" id="overlay"></div>
-
-<!-- MOBILE side menu -->
-<div class="side-menu" id="sideMenu">
-
-  <a href="index.html" class="menu-item">
-    <img src="assets/icons/home.svg" class="icon" />
-    <span>Home</span>
-  </a>
-
-  <a href="page/lib.html" class="menu-item">
-    <img src="assets/icons/library.svg" class="icon" />
-    <span>Library</span>
-  </a>
-
-</div>
-  <!-- 主体 -->
+  <!-- MAIN -->
   <main class="page">
 
     <!-- HERO -->
@@ -61,17 +32,96 @@
       <div class="scroll-indicator">↓ Scroll to Explore ↓</div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer reveal">
-      <p>© 2026 Reverie Archive</p>
+    <!-- ABOUT PREVIEW -->
+    <section class="section reveal">
 
-    </footer>
+      <h2>ABOUT</h2>
+
+      <p class="section-desc">
+        A brief introduction to the creator behind Reverie Archive — a student developer exploring UI, systems, and interactive design.
+      </p>
+
+      <a class="view-more" href="page/abt.html">View More →</a>
+
+    </section>
+
+    <!-- PROJECTS PREVIEW -->
+    <section class="section reveal">
+
+      <h2>PORTFOLIO</h2>
+
+      <p class="section-desc">
+        A collection of UI experiments, web systems, and small creative builds focused on interaction and atmosphere.
+      </p>
+
+      <div class="mini-grid">
+
+        <div class="mini-card">
+          <h3>Element Explorer 2.0</h3>
+          <p>A simple web for exploring chemistry.</p>
+        </div>
+      </div>
+
+      <a class="view-more" href="page/ptf.html">View More →</a>
+
+    </section>
+
+
+    <!-- LIBRARY PREVIEW -->
+    <section class="section reveal">
+
+      <h2>LIBRARY // ANOMALY ARCHIVE</h2>
+
+      <p class="section-desc">
+        A segmented storage layer within Reverie Archive, containing narrative datasets, personal fiction constructs, and unstable manuscript fragments.
+        Three primary entries are currently indexed. Additional records remain fragmented or uninitialized.
+      </p>
+
+      <div class="restricted-box">
+
+        <p class="restricted-title">⚠ SYSTEM NOTICE: ACCESS LIMITED</p>
+        <p class="restricted-text">
+          This subsystem contains narrative files with unstable integrity states. Some entries may appear incomplete, partially corrupted, or structurally inconsistent during rendering.
+        </p>
+
+      </div>
+
+      <!-- NOVEL PREVIEW -->
+      <div class="lib-grid">
+
+        <div class="lib-card">
+          <div class="lib-status">STABLE</div>
+          <h3>Re: The Noneexistent World</h3>
+          <p>A recursive reconstruction attempt of a world that should not stabilize.</p>
+        </div>
+
+        <div class="lib-card">
+          <div class="lib-status warn">FRAGMENTED</div>
+          <h3>The Nonexistent World</h3>
+          <p>An anomalous world reconstructed from corrupted memory fragments. <br><br> Consistency index: UNRELIABLE. </p>
+        </div>
+
+        <div class="lib-card">
+          <div class="lib-status error">CORRUPTED</div>
+          <h3>Oathborne</h3>
+          <p>A record bound by oath. Every truth inside it requires a price.<br><br> Data integrity unstable.</p>
+        </div>
+
+      </div>
+
+      <a class="view-more" href="page/lib.html">REQUEST ACCESS →</a>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="footer"></footer>
 
   </main>
 
   <!-- Scripts -->
   <script src="js/script.js"></script>
   <script src="js/init.js"></script>
+  <script src="/js/nav.js"></script>
 
 </body>
 </html>
