@@ -45,16 +45,16 @@
     }
 
     .cover-box {
-      height: 425px;
+      width: 100%;
+      aspect-ratio: 2 / 1;
+
       border-radius: 14px;
       overflow: hidden;
 
       background-size: cover;
       background-position: center;
-
-      position: relative;
     }
-
+    
     .cover-box::after {
       content: "ARCHIVE VISUAL // STABLE IMAGE STREAM";
       position: absolute;

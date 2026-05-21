@@ -1,4 +1,13 @@
 (async function () {
+  // =========================
+  // ACCESS GUARD
+  // =========================
+  const access = sessionStorage.getItem("reverie_access");
+
+  if (!access) {
+    window.location.replace("gate.html");
+    return;
+  }
 
   const SUPABASE_URL = "https://jpgcsxgbtciermeahsjm.supabase.co/";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZ2NzeGdidGNpZXJtZWFoc2ptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk2ODQsImV4cCI6MjA5NDg1NTY4NH0.GzekIuan0SljFjsZGJKr4II3r9xxHTk0srd5aV4_suA";

@@ -1,5 +1,6 @@
+
 // =========================
-// HOME TYPEWRITER FIXED
+// HOME TYPEWRITER
 // =========================
 (function () {
   const el = document.getElementById("homeQuote");
@@ -46,81 +47,92 @@
     step();
   }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    typeWriter(pick());
-  });
+  // 🔥 改成「立即執行」避免 DOMContentLoaded miss
+  typeWriter(pick());
 })();
 
-const hamburger = document.getElementById("hamburger");
-const sideMenu = document.getElementById("sideMenu");
-const overlay = document.getElementById("overlay");
-const menuItems = document.querySelectorAll(".menu-item");
 
-function toggleMenu() {
-  hamburger.classList.toggle("active");
-  sideMenu.classList.toggle("active");
-  overlay.classList.toggle("active");
-}
+// =========================
+// MOBILE MENU
+// =========================
+(function () {
+  const hamburger = document.getElementById("hamburger");
+  const sideMenu = document.getElementById("sideMenu");
+  const overlay = document.getElementById("overlay");
+  const menuItems = document.querySelectorAll(".menu-item");
 
-hamburger.addEventListener("click", toggleMenu);
-overlay.addEventListener("click", toggleMenu);
+  if (!hamburger || !sideMenu || !overlay) return;
 
-menuItems.forEach(item => {
-  item.addEventListener("click", () => {
-    toggleMenu();
+  function toggleMenu() {
+    hamburger.classList.toggle("active");
+    sideMenu.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
+
+  hamburger.addEventListener("click", toggleMenu);
+  overlay.addEventListener("click", toggleMenu);
+
+  menuItems.forEach(item => {
+    item.addEventListener("click", toggleMenu);
   });
-});
-
-// =========================
-// ELEMENTS CACHE
-// =========================
-const nav = document.querySelector(".nav");
-const hero = document.querySelector(".hero");
-const reveals = document.querySelectorAll(".reveal");
+})();
 
 
 // =========================
 // SCROLL SYSTEM
 // =========================
-function onScroll() {
-  const scrollY = window.scrollY;
-  const trigger = window.innerHeight * 0.85;
+(function () {
+  const nav = document.querySelector(".nav");
+  const hero = document.querySelector(".hero");
+  const reveals = document.querySelectorAll(".reveal");
 
-  if (nav) {
-    nav.classList.toggle("scrolled", scrollY > 20);
-  }
+  function onScroll() {
+    const scrollY = window.scrollY;
+    const trigger = window.innerHeight * 0.85;
 
-  if (hero) {
-    hero.classList.toggle("hide", scrollY > window.innerHeight * 0.6);
-  }
-
-  reveals.forEach((el) => {
-    const top = el.getBoundingClientRect().top;
-
-    if (top < trigger) {
-      el.classList.add("active");
-    } else {
-      el.classList.remove("active");
+    if (nav) {
+      nav.classList.toggle("scrolled", scrollY > 20);
     }
-  });
-}
 
-window.addEventListener("scroll", onScroll, { passive: true });
-window.addEventListener("load", onScroll);
-onScroll();
+    if (hero) {
+      hero.classList.toggle("hide", scrollY > window.innerHeight * 0.6);
+    }
+
+    reveals.forEach((el) => {
+      const top = el.getBoundingClientRect().top;
+
+      if (top < trigger) {
+        el.classList.add("active");
+      } else {
+        el.classList.remove("active");
+      }
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("load", onScroll);
+
+  onScroll();
+})();
+
 
 // =========================
-// INIT
+// INIT (SAFE VERSION)
 // =========================
 window.addEventListener("DOMContentLoaded", () => {
-  loadLatestUpdates();
-  loadLibrary();
+  if (typeof loadLatestUpdates === "function") {
+    loadLatestUpdates();
+  }
+
+  if (typeof loadLibrary === "function") {
+    loadLibrary();
+  }
 });
 
 
-// ======================================================
-// 404 MODULE (UNCHANGED)
-// ======================================================
+// =========================
+// 404 MODULE
+// =========================
 (function () {
   const quoteEl404 = document.getElementById("randomQuote");
   if (!quoteEl404) return;
@@ -152,11 +164,9 @@ window.addEventListener("DOMContentLoaded", () => {
     return quoteList[Math.floor(Math.random() * quoteList.length)];
   }
 
-  function typeWriter() {
-    let text = pickQuote();
-    let i = 0;
-
+  function typeWriter404(text) {
     quoteEl404.textContent = "";
+    let i = 0;
 
     function step() {
       if (i < text.length) {
@@ -179,10 +189,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 1200);
   }
 
-  window.addEventListener("load", () => {
-    typeWriter();
-    glitchLoop();
-  });
-
-  
+  // 🔥 同樣改成立即執行，避免 load timing 問題
+  typeWriter404(pickQuote());
+  glitchLoop();
 })();

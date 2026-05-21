@@ -1,5 +1,14 @@
 (async function () {
+  // =========================
+  // ACCESS GUARD
+  // =========================
+  const access = sessionStorage.getItem("reverie_access");
 
+  if (!access) {
+    window.location.replace("gate.html");
+    return;
+  }
+  
   // =========================
   // SUPABASE CONFIG
   // =========================
