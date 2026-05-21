@@ -284,33 +284,6 @@ a {
   margin-top: 6px;
 }
 
-
-.timeline {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.timeline-item {
-  padding: 14px 16px;
-  border-radius: 14px;
-
-  background: rgba(0,0,0,0.03);
-  backdrop-filter: blur(10px);
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  font-size: 14px;
-}
-
-.timeline-item .time {
-  font-size: 12px;
-  opacity: 0.5;
-}
-
 /* =========================
    404 PAGE
 ========================= */

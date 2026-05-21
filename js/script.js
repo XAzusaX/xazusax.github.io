@@ -109,37 +109,6 @@ window.addEventListener("scroll", onScroll, { passive: true });
 window.addEventListener("load", onScroll);
 onScroll();
 
-
-// ======================================================
-// 🔥 LATEST UPDATE SYSTEM (INDEX)
-// ======================================================
-async function loadLatestUpdates() {
-  const container = document.getElementById("timeline");
-  if (!container) return;
-
-  try {
-    const res = await fetch("data/latest.json");
-    const data = await res.json();
-
-    container.innerHTML = "";
-
-    data.updates.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "timeline-item";
-
-      div.innerHTML = `
-        <span class="time">${item.date}</span>
-        <p>${item.text}</p>
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.warn("Latest update load failed:", err);
-  }
-}
-
 // =========================
 // INIT
 // =========================
