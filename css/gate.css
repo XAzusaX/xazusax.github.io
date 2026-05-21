@@ -31,7 +31,10 @@ body::before {
 
 /* 主容器 */
 .gate {
-  width: 380px;
+
+  width: min(380px, 90vw);
+  max-width: 380px;
+
   padding: 28px;
 
   border-radius: 22px;
@@ -127,7 +130,7 @@ body::before {
 
 .scroll-indicator {
   margin-top: 40px;
-  font-size: 12px;
+  font-size: 17px;
   letter-spacing: 2px;
   color: rgba(0,0,0,0.5);
 
