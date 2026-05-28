@@ -145,7 +145,7 @@
       : String(index + 1).padStart(2, "0");
 
     const isLockedNode =
-      (isTNE && (ch.id === "c33" || ch.title === "FILE CORRUPTED")) ||
+      (isTNE && (ch.id === "c35" || ch.title === "FILE CORRUPTED")) ||
       (isOATH && (ch.id === "null" || ch.title === "NULL"));
 
     a.href = isLockedNode

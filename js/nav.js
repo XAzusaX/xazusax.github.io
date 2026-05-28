@@ -7,7 +7,7 @@
         <img src="/assets/logo.png" alt="logo" />
         <span>Reverie Archive</span>
       </a>
-
+      
       <div class="hamburger" id="hamburger">
         <span></span>
         <span></span>
