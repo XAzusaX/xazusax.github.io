@@ -1,0 +1,167 @@
+---
+import Header from "../components/Header.astro";
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Archive — XAzusaX 的個人筆記、專案與創作收藏。"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <title>Archive — XAzusaX</title>
+  </head>
+
+  <body>
+    <div class="ambient" aria-hidden="true">
+      <span class="glow glow-one"></span>
+      <span class="glow glow-two"></span>
+      <span class="glow glow-three"></span>
+    </div>
+
+    <Header />
+
+    <main>
+      <section class="hero" aria-labelledby="home-title">
+        <div class="hero-copy">
+          <p class="eyebrow reveal" style="--delay: 100ms">
+            個人檔案館 · 2026
+          </p>
+
+          <h1 class="reveal" id="home-title" style="--delay: 220ms">
+            你好，我是<br />XAzusaX。
+          </h1>
+
+          <p class="hero-description reveal" style="--delay: 360ms">
+            這裡放著我的筆記、專案、故事，
+            還有其他暫時找不到分類的東西。
+          </p>
+
+          <a class="hero-link reveal" href="#collections" style="--delay: 500ms">
+            開始瀏覽 <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+
+        <div
+          class="hero-artefact reveal"
+          style="--delay: 300ms"
+          aria-label="Archive 首頁視覺"
+        >
+          <div class="artefact-topline">
+            <span>ARCHIVE</span>
+            <span>0001</span>
+          </div>
+
+          <div class="artefact-orbit">
+            <span class="orbit-ring orbit-ring-one"></span>
+            <span class="orbit-ring orbit-ring-two"></span>
+            <span class="orbit-core">A</span>
+          </div>
+
+          <div class="artefact-bottom">
+            <span>PERSONAL INDEX</span>
+            <span>OPEN</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="collections" id="collections" aria-labelledby="collections-title">
+        <div class="section-intro scroll-reveal">
+          <p class="eyebrow">收藏分類</p>
+          <h2 id="collections-title">從這裡開始。</h2>
+        </div>
+
+        <div class="archive-grid">
+          <a
+            class="archive-card scroll-reveal"
+            id="journal"
+            href="#journal"
+            style="--delay: 0ms"
+          >
+            <span class="card-number">01</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+
+            <div>
+              <h3>隨筆</h3>
+              <p>學習、生活、遊戲與開發過程中的記錄。</p>
+            </div>
+          </a>
+
+          <a
+            class="archive-card scroll-reveal"
+            id="projects"
+            href="#projects"
+            style="--delay: 100ms"
+          >
+            <span class="card-number">02</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+
+            <div>
+              <h3>專案</h3>
+              <p>網站、工具、實驗，以及想繼續完善的作品。</p>
+            </div>
+          </a>
+
+          <a
+            class="archive-card scroll-reveal"
+            id="archive"
+            href="#archive"
+            style="--delay: 0ms"
+          >
+            <span class="card-number">03</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+
+            <div>
+              <h3>故事收藏</h3>
+              <p>小說、角色、世界觀與一些還沒說完的內容。</p>
+            </div>
+          </a>
+
+          <a
+            class="archive-card scroll-reveal"
+            id="elements"
+            href="#elements"
+            style="--delay: 100ms"
+          >
+            <span class="card-number">04</span>
+            <span class="card-arrow" aria-hidden="true">↗</span>
+
+            <div>
+              <h3>元素探索者</h3>
+              <p>一個持續擴充中的互動式元素小維基。</p>
+            </div>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="about">
+      <span>© 2026 Archive</span>
+      <span>由 XAzusaX 建立。</span>
+    </footer>
+
+    <script>
+      const scrollElements = document.querySelectorAll(".scroll-reveal");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          });
+        },
+        {
+          threshold: 0.18,
+          rootMargin: "0px 0px -8% 0px",
+        },
+      );
+
+      scrollElements.forEach((element) => observer.observe(element));
+    </script>
+  </body>
+</html>
