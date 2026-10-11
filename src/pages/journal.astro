@@ -1,0 +1,128 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Journal — Archive"
+  description="Archive 的文章、筆記與開發記錄。"
+>
+  <main class="journal-page">
+    <header class="journal-hero">
+      <p class="eyebrow">Archive · Public records</p>
+      <h1>Journal</h1>
+      <p>一些正在整理、持續生長的文字檔案。</p>
+    </header>
+
+    <section class="journal-list-section" aria-labelledby="journal-list-title">
+      <div class="journal-list-heading">
+        <p class="eyebrow">Published records</p>
+        <h2 id="journal-list-title">已發布文章</h2>
+      </div>
+
+      <div class="public-post-list" data-public-posts>
+        <p class="studio-loading">正在讀取文章…</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+
+    type PublicPost = {
+      id: string;
+      title: string;
+      description: string;
+      slug: string;
+      tags: string[];
+      published_at: string;
+    };
+
+    const container =
+      document.querySelector<HTMLDivElement>("[data-public-posts]");
+
+    const formatDate = (value: string) =>
+      new Intl.DateTimeFormat("zh-Hant", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(new Date(value));
+
+    const createEmptyMessage = (text: string) => {
+      const message = document.createElement("p");
+      message.className = "studio-empty";
+      message.textContent = text;
+      return message;
+    };
+
+    const createPostCard = (post: PublicPost) => {
+      const article = document.createElement("article");
+      article.className = "public-post-card";
+
+      const meta = document.createElement("p");
+      meta.className = "public-post-meta";
+      meta.textContent = formatDate(post.published_at);
+
+      const title = document.createElement("h3");
+      title.textContent = post.title;
+
+      const description = document.createElement("p");
+      description.className = "public-post-description";
+      description.textContent = post.description;
+
+      const footer = document.createElement("div");
+      footer.className = "public-post-footer";
+
+      const tags = document.createElement("div");
+      tags.className = "public-post-tags";
+
+      post.tags.forEach((tag) => {
+        const tagElement = document.createElement("span");
+        tagElement.textContent = tag;
+        tags.append(tagElement);
+      });
+
+      const link = document.createElement("a");
+      link.href = `/journal/read?id=${encodeURIComponent(post.id)}`;
+      link.textContent = "閱讀文章 →";
+      link.setAttribute("aria-label", `閱讀：${post.title}`);
+
+      footer.append(tags, link);
+      article.append(meta, title, description, footer);
+
+      return article;
+    };
+
+    const loadPosts = async () => {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, title, description, slug, tags, published_at")
+        .eq("status", "published")
+        .not("published_at", "is", null)
+        .order("published_at", { ascending: false });
+
+      if (!container) return;
+
+      container.replaceChildren();
+
+      if (error) {
+        container.append(
+          createEmptyMessage("暫時無法讀取文章，請稍後再試。")
+        );
+        return;
+      }
+
+      const posts = (data ?? []) as PublicPost[];
+
+      if (posts.length === 0) {
+        container.append(
+          createEmptyMessage("目前還沒有公開文章。第一份檔案正在整理中。")
+        );
+        return;
+      }
+
+      posts.forEach((post) => container.append(createPostCard(post)));
+    };
+
+    loadPosts();
+  </script>
+</BaseLayout>

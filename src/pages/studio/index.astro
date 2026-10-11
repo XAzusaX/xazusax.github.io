@@ -1,0 +1,176 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Studio — Archive" description="Archive 私人寫作後台。">
+  <main class="studio-page">
+    <section class="studio-hero">
+      <div>
+        <p class="eyebrow">Archive Studio · Writer access</p>
+        <h1>文章工作區</h1>
+        <p>在這裡整理草稿、編輯內容，並發布新的文章。</p>
+      </div>
+
+      <div class="studio-actions">
+        <a class="studio-new-post" href="/studio/new">
+          新建文章 <span aria-hidden="true">＋</span>
+        </a>
+
+        <button class="studio-sign-out" type="button" data-sign-out>
+          登出
+        </button>
+      </div>
+    </section>
+
+    <section class="studio-section" aria-labelledby="drafts-title">
+      <div class="studio-section-heading">
+        <p class="eyebrow">尚未公開</p>
+        <h2 id="drafts-title">草稿</h2>
+      </div>
+
+      <div class="studio-post-list" data-drafts>
+        <p class="studio-loading">正在讀取草稿…</p>
+      </div>
+    </section>
+
+    <section class="studio-section" aria-labelledby="published-title">
+      <div class="studio-section-heading">
+        <p class="eyebrow">已對外公開</p>
+        <h2 id="published-title">已發布</h2>
+      </div>
+
+      <div class="studio-post-list" data-published>
+        <p class="studio-loading">正在讀取文章…</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../../lib/supabase";
+
+    type Post = {
+      id: string;
+      title: string;
+      status: "draft" | "published";
+      updated_at: string;
+      published_at: string | null;
+    };
+
+    const draftsContainer =
+      document.querySelector<HTMLDivElement>("[data-drafts]");
+    const publishedContainer =
+      document.querySelector<HTMLDivElement>("[data-published]");
+    const signOutButton =
+      document.querySelector<HTMLButtonElement>("[data-sign-out]");
+
+    const formatDate = (value: string) =>
+      new Intl.DateTimeFormat("zh-Hant", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(value));
+
+    const createEmptyMessage = (text: string) => {
+      const message = document.createElement("p");
+      message.className = "studio-empty";
+      message.textContent = text;
+      return message;
+    };
+
+    const createPostItem = (post: Post) => {
+      const article = document.createElement("article");
+      article.className = "studio-post-item";
+
+      const meta = document.createElement("p");
+      meta.className = "studio-post-meta";
+
+      const date = post.status === "published" && post.published_at
+        ? `發布於 ${formatDate(post.published_at)}`
+        : `最後修改 ${formatDate(post.updated_at)}`;
+
+      meta.textContent = date;
+
+      const title = document.createElement("h3");
+      title.textContent = post.title || "未命名文章";
+
+      const link = document.createElement("a");
+      link.href = `/studio/edit?id=${encodeURIComponent(post.id)}`;
+      link.textContent = "編輯 →";
+      link.setAttribute("aria-label", `編輯：${post.title || "未命名文章"}`);
+
+      article.append(meta, title, link);
+
+      return article;
+    };
+
+    const renderPosts = (
+      container: HTMLDivElement | null,
+      posts: Post[],
+      emptyMessage: string,
+    ) => {
+      if (!container) return;
+
+      container.replaceChildren();
+
+      if (posts.length === 0) {
+        container.append(createEmptyMessage(emptyMessage));
+        return;
+      }
+
+      posts.forEach((post) => {
+        container.append(createPostItem(post));
+      });
+    };
+
+    const loadStudio = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        window.location.replace("/login");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, title, status, updated_at, published_at")
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        const errorMessage = "無法讀取文章，請重新整理後再試。";
+
+        if (draftsContainer) {
+          draftsContainer.replaceChildren(createEmptyMessage(errorMessage));
+        }
+
+        if (publishedContainer) {
+          publishedContainer.replaceChildren(createEmptyMessage(errorMessage));
+        }
+
+        return;
+      }
+
+      const posts = (data ?? []) as Post[];
+
+      renderPosts(
+        draftsContainer,
+        posts.filter((post) => post.status === "draft"),
+        "目前沒有草稿。可以從右上角建立第一篇文章。",
+      );
+
+      renderPosts(
+        publishedContainer,
+        posts.filter((post) => post.status === "published"),
+        "目前還沒有已發布的文章。",
+      );
+    };
+
+    signOutButton?.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.replace("/login");
+    });
+
+    loadStudio();
+  </script>
+</BaseLayout>

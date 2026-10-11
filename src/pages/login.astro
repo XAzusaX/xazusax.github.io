@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="登入 Studio — Archive" description="Archive Studio 登入頁面。">
+  <main class="studio-login-page">
+    <section class="studio-login">
+      <div class="studio-login-intro">
+        <p class="eyebrow">Archive Studio · Private access</p>
+
+        <h1>回到<br />檔案館。</h1>
+
+        <p>
+          這裡是 Archive 的私人工作區。
+          登入後可以建立草稿、整理文章與發布內容。
+        </p>
+
+        <div class="studio-login-record" aria-label="系統狀態">
+          <span>WRITER ACCESS</span>
+          <strong>RESTRICTED</strong>
+        </div>
+      </div>
+
+      <div class="studio-login-form-area">
+        <p class="eyebrow">身份驗證</p>
+        <h2>登入 Studio</h2>
+
+        <form class="studio-form" data-login-form>
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          />
+
+          <label for="password">密碼</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="輸入密碼"
+            required
+          />
+
+          <button type="submit">登入並進入 Studio <span>→</span></button>
+
+          <p class="form-message" data-form-message aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+
+    const form = document.querySelector<HTMLFormElement>("[data-login-form]");
+    const message =
+      document.querySelector<HTMLParagraphElement>("[data-form-message]");
+    const button = form?.querySelector<HTMLButtonElement>("button");
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const email = String(formData.get("email") || "").trim();
+      const password = String(formData.get("password") || "");
+
+      if (!email || !password || !message || !button) return;
+
+      button.disabled = true;
+      button.textContent = "正在驗證…";
+      message.textContent = "";
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        message.textContent = `登入失敗：${error.message}`;
+        button.disabled = false;
+        button.innerHTML = '登入並進入 Studio <span>→</span>';
+        return;
+      }
+
+      window.location.assign("/studio");
+    });
+  </script>
+</BaseLayout>

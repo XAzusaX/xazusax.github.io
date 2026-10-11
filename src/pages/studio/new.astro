@@ -1,0 +1,204 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="新建文章 — Archive Studio" description="建立新的 Archive 文章。">
+  <main class="editor-page">
+    <header class="editor-header">
+      <div>
+        <a class="editor-back" href="/studio">← 返回 Studio</a>
+
+        <p class="eyebrow">Archive Studio · New record</p>
+        <h1>新建文章</h1>
+      </div>
+
+      <p class="editor-status" data-editor-status>草稿尚未建立</p>
+    </header>
+
+    <form class="post-editor" data-post-form>
+      <section class="editor-section">
+        <label for="title">标题</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder="这篇文章想叫什么？"
+          maxlength="160"
+          required
+        />
+      </section>
+
+      <section class="editor-section">
+        <label for="description">摘要</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="3"
+          maxlength="300"
+          placeholder="用一两句话说明这篇文章。"
+          required
+        ></textarea>
+      </section>
+
+      <section class="editor-grid">
+        <div class="editor-section">
+          <label for="slug">网址代号</label>
+          <input
+            id="slug"
+            name="slug"
+            type="text"
+            placeholder="first-archive-entry"
+            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+            required
+          />
+          <p class="editor-hint">
+            只用英文小写、数字和连字符，例如：first-archive-entry
+          </p>
+        </div>
+
+        <div class="editor-section">
+          <label for="tags">标签</label>
+          <input
+            id="tags"
+            name="tags"
+            type="text"
+            placeholder="開發記錄, Astro"
+          />
+          <p class="editor-hint">用逗号分隔多个标签。</p>
+        </div>
+      </section>
+
+      <section class="editor-section">
+        <label for="content">正文</label>
+        <textarea
+          class="editor-content"
+          id="content"
+          name="content"
+          rows="18"
+          placeholder="从这里开始写。"
+          required
+        ></textarea>
+      </section>
+
+      <div class="editor-actions">
+        <p class="editor-message" data-editor-message aria-live="polite"></p>
+
+        <div>
+          <button class="editor-save" type="submit" value="draft">
+            保存草稿
+          </button>
+
+          <button class="editor-publish" type="submit" value="published">
+            发布文章 <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    import { supabase } from "../../../lib/supabase";
+
+    const form = document.querySelector<HTMLFormElement>("[data-post-form]");
+    const message =
+      document.querySelector<HTMLParagraphElement>("[data-editor-message]");
+    const status =
+      document.querySelector<HTMLParagraphElement>("[data-editor-status]");
+    const buttons = form?.querySelectorAll<HTMLButtonElement>(
+      'button[type="submit"]',
+    );
+
+    const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+    const ensureSignedIn = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        window.location.replace("/login");
+      }
+    };
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const submitter = event.submitter as HTMLButtonElement | null;
+      const action = submitter?.value === "published" ? "published" : "draft";
+      const formData = new FormData(form);
+
+      const title = String(formData.get("title") || "").trim();
+      const description = String(formData.get("description") || "").trim();
+      const slug = String(formData.get("slug") || "")
+        .trim()
+        .toLowerCase();
+      const content = String(formData.get("content") || "").trim();
+
+      const tags = String(formData.get("tags") || "")
+        .split(/[,，]/)
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
+      if (!slugPattern.test(slug)) {
+        if (message) {
+          message.textContent =
+            "网址代号只能使用英文小写、数字和连字符。";
+        }
+
+        return;
+      }
+
+      if (!title || !description || !content) {
+        if (message) {
+          message.textContent = "请先填写标题、摘要和正文。";
+        }
+
+        return;
+      }
+
+      buttons?.forEach((button) => {
+        button.disabled = true;
+      });
+
+      if (message) {
+        message.textContent =
+          action === "published" ? "正在发布文章…" : "正在保存草稿…";
+      }
+
+      const { error } = await supabase.from("posts").insert({
+        title,
+        description,
+        slug,
+        content,
+        tags,
+        status: action,
+        published_at: action === "published" ? new Date().toISOString() : null,
+      });
+
+      if (error) {
+        if (error.code === "23505") {
+          if (message) {
+            message.textContent = "这个网址代号已经被使用，请换一个。";
+          }
+        } else if (message) {
+          message.textContent = `无法储存文章：${error.message}`;
+        }
+
+        buttons?.forEach((button) => {
+          button.disabled = false;
+        });
+
+        return;
+      }
+
+      if (status) {
+        status.textContent =
+          action === "published" ? "文章已发布" : "草稿已保存";
+      }
+
+      window.location.assign("/studio");
+    });
+
+    ensureSignedIn();
+  </script>
+</BaseLayout>

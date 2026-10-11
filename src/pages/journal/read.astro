@@ -1,0 +1,118 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="閱讀文章 — Archive" description="Archive 的文章內容。">
+  <main class="reading-page">
+    <a class="reading-back" href="/journal">← 返回 Journal</a>
+
+    <article class="reading-article" data-reading-article hidden>
+      <header class="reading-header">
+        <p class="reading-date" data-post-date></p>
+        <h1 data-post-title></h1>
+        <p class="reading-description" data-post-description></p>
+        <div class="reading-tags" data-post-tags></div>
+      </header>
+
+      <div class="reading-content" data-post-content></div>
+    </article>
+
+    <p class="studio-loading" data-reading-status>正在讀取文章…</p>
+  </main>
+
+  <script>
+    import { supabase } from "../../../lib/supabase";
+
+    type PublicPost = {
+      title: string;
+      description: string;
+      content: string;
+      tags: string[];
+      published_at: string;
+    };
+
+    const id = new URLSearchParams(window.location.search).get("id");
+
+    const article =
+      document.querySelector<HTMLElement>("[data-reading-article]");
+    const status =
+      document.querySelector<HTMLParagraphElement>("[data-reading-status]");
+    const title = document.querySelector<HTMLHeadingElement>("[data-post-title]");
+    const date =
+      document.querySelector<HTMLParagraphElement>("[data-post-date]");
+    const description = document.querySelector<HTMLParagraphElement>(
+      "[data-post-description]"
+    );
+    const tags =
+      document.querySelector<HTMLDivElement>("[data-post-tags]");
+    const content =
+      document.querySelector<HTMLDivElement>("[data-post-content]");
+
+    const formatDate = (value: string) =>
+      new Intl.DateTimeFormat("zh-Hant", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(new Date(value));
+
+    const showError = (text: string) => {
+      if (status) status.textContent = text;
+    };
+
+    const renderContent = (text: string) => {
+      if (!content) return;
+
+      content.replaceChildren();
+
+      text
+        .split(/\n\s*\n/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean)
+        .forEach((paragraph) => {
+          const element = document.createElement("p");
+          element.textContent = paragraph;
+          content.append(element);
+        });
+    };
+
+    const loadPost = async () => {
+      if (!id) {
+        showError("找不到文章識別碼。請從 Journal 列表重新開啟文章。");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("title, description, content, tags, published_at")
+        .eq("id", id)
+        .eq("status", "published")
+        .single();
+
+      if (error || !data) {
+        showError("找不到這篇文章，或它目前尚未公開。");
+        return;
+      }
+
+      const post = data as PublicPost;
+
+      document.title = `${post.title} — Archive`;
+
+      if (title) title.textContent = post.title;
+      if (date) date.textContent = formatDate(post.published_at);
+      if (description) description.textContent = post.description;
+
+      post.tags.forEach((tag) => {
+        const tagElement = document.createElement("span");
+        tagElement.textContent = tag;
+        tags?.append(tagElement);
+      });
+
+      renderContent(post.content);
+
+      article?.removeAttribute("hidden");
+      status?.remove();
+    };
+
+    loadPost();
+  </script>
+</BaseLayout>
