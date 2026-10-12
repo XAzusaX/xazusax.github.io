@@ -13,6 +13,74 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <p>一些正在整理、持續生長的文字檔案。</p>
     </header>
 
+    <section class="journal-controls" aria-label="搜尋與篩選文章">
+  <div class="journal-controls-toolbar">
+    <button
+      class="journal-controls-toggle"
+      type="button"
+      data-journal-controls-toggle
+      aria-expanded="false"
+      aria-controls="journal-controls-panel"
+    >
+      <span class="journal-controls-toggle-label">搜尋與篩選</span>
+      <span class="journal-controls-summary" data-journal-summary>
+        載入文章中…
+      </span>
+
+      <svg
+        class="journal-controls-arrow"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path d="m7 10 5 5 5-5" />
+      </svg>
+    </button>
+  </div>
+
+  <div
+    class="journal-controls-panel"
+    id="journal-controls-panel"
+    data-journal-controls-panel
+    hidden
+  >
+    <div class="journal-search-row">
+      <label class="journal-search" for="journal-search">
+        <span>搜尋標題</span>
+        <input
+          id="journal-search"
+          type="search"
+          placeholder="輸入文章標題…"
+          autocomplete="off"
+          data-search-input
+        />
+      </label>
+
+      <button
+        class="journal-search-clear"
+        type="button"
+        data-search-clear
+        hidden
+        aria-label="清除搜尋文字"
+      >
+        清除
+      </button>
+    </div>
+
+    <div class="journal-filter-area">
+      <p>依標籤篩選</p>
+
+      <div class="journal-tag-filters" data-tag-filters>
+        <button class="tag-filter is-active" type="button" data-tag-filter="">
+          全部
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sr-only" data-results-count aria-live="polite"></p>
+</section>
+
     <section class="journal-list-section" aria-labelledby="journal-list-title">
       <div class="journal-list-heading">
         <p class="eyebrow">Published records</p>
@@ -39,6 +107,85 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
     const container =
       document.querySelector<HTMLDivElement>("[data-public-posts]");
+    const searchInput =
+      document.querySelector<HTMLInputElement>("[data-search-input]");
+    const tagFilters =
+      document.querySelector<HTMLDivElement>("[data-tag-filters]");
+    const resultsCount =
+      document.querySelector<HTMLParagraphElement>("[data-results-count]");
+    const controlsToggle =
+      document.querySelector<HTMLButtonElement>(
+        "[data-journal-controls-toggle]"
+      );
+
+    const controlsPanel =
+      document.querySelector<HTMLElement>(
+        "[data-journal-controls-panel]"
+      );
+
+    const controlsSummary =
+      document.querySelector<HTMLElement>("[data-journal-summary]");
+
+    const clearSearch =
+      document.querySelector<HTMLButtonElement>("[data-search-clear]");
+
+    let controlsAreOpen = false;
+    let closePanelTimer: number | undefined;
+
+    const setControlsPanel = (isOpen: boolean) => {
+      if (!controlsToggle || !controlsPanel) return;
+
+      controlsAreOpen = isOpen;
+      window.clearTimeout(closePanelTimer);
+
+      controlsToggle.setAttribute("aria-expanded", String(isOpen));
+      controlsToggle.classList.toggle("is-open", isOpen);
+
+      if (isOpen) {
+        controlsPanel.hidden = false;
+
+        window.requestAnimationFrame(() => {
+          if (controlsAreOpen) {
+            controlsPanel?.classList.add("is-open");
+          }
+        });
+
+        return;
+      }
+
+      controlsPanel.classList.remove("is-open");
+
+      closePanelTimer = window.setTimeout(() => {
+        if (!controlsAreOpen && controlsPanel) {
+          controlsPanel.hidden = true;
+        }
+      }, 540);
+    };
+
+    controlsToggle?.addEventListener("click", () => {
+      setControlsPanel(!controlsAreOpen);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && controlsAreOpen) {
+        setControlsPanel(false);
+        controlsToggle?.focus();
+      }
+
+      if (
+        event.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        event.preventDefault();
+        setControlsPanel(true);
+        searchInput?.focus();
+      }
+    });
+
+    let allPosts: PublicPost[] = [];
+    let activeTag = "";
+    let searchQuery = "";
 
     const formatDate = (value: string) =>
       new Intl.DateTimeFormat("zh-Hant", {
@@ -82,7 +229,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       });
 
       const link = document.createElement("a");
-      link.href = `/journal/read?id=${encodeURIComponent(post.id)}`;
+      link.href = `/journal/read?slug=${encodeURIComponent(post.slug)}`;
       link.textContent = "閱讀文章 →";
       link.setAttribute("aria-label", `閱讀：${post.title}`);
 
@@ -90,6 +237,99 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       article.append(meta, title, description, footer);
 
       return article;
+    };
+
+    const getFilteredPosts = () =>
+      allPosts.filter((post) => {
+        const titleMatches = post.title
+          .toLocaleLowerCase()
+          .includes(searchQuery.toLocaleLowerCase());
+
+        const tagMatches =
+          !activeTag || post.tags.some((tag) => tag === activeTag);
+
+        return titleMatches && tagMatches;
+      });
+
+    const renderPosts = () => {
+      if (!container) return;
+
+      const posts = getFilteredPosts();
+
+      container.replaceChildren();
+
+      if (posts.length === 0) {
+        const hasFilter = Boolean(searchQuery || activeTag);
+
+        container.append(
+          createEmptyMessage(
+            hasFilter
+              ? "沒有符合目前搜尋或標籤篩選的文章。"
+              : "目前還沒有公開文章。第一份檔案正在整理中。"
+          )
+        );
+      } else {
+        posts.forEach((post) => container.append(createPostCard(post)));
+      }
+
+      if (resultsCount) {
+        resultsCount.textContent = `顯示 ${posts.length} 篇文章`;
+      }
+
+      if (controlsSummary) {
+        controlsSummary.textContent =
+          searchQuery || activeTag
+            ? `已篩選 · ${posts.length} 篇`
+            : `${posts.length} 篇文章`;
+      }
+
+      controlsToggle?.classList.toggle(
+        "has-active-filters",
+        Boolean(searchQuery || activeTag)
+      );
+
+      clearSearch?.toggleAttribute("hidden", !searchQuery);
+    };
+
+    const setActiveTag = (tag: string) => {
+      activeTag = tag;
+
+      tagFilters?.querySelectorAll<HTMLButtonElement>("[data-tag-filter]").forEach(
+        (button) => {
+          button.classList.toggle("is-active", button.dataset.tagFilter === tag);
+        }
+      );
+
+      renderPosts();
+    };
+
+    const createTagButton = (tag: string) => {
+      const button = document.createElement("button");
+      button.className = "tag-filter";
+      button.type = "button";
+      button.dataset.tagFilter = tag;
+      button.textContent = tag || "全部";
+
+      if (tag === activeTag) {
+        button.classList.add("is-active");
+      }
+
+      button.addEventListener("click", () => setActiveTag(tag));
+      return button;
+    };
+
+    const renderTagFilters = () => {
+      if (!tagFilters) return;
+
+      const tags = [
+        ...new Set(allPosts.flatMap((post) => post.tags).filter(Boolean)),
+      ].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+
+      tagFilters.replaceChildren(createTagButton(""));
+
+      tags.forEach((tag) => {
+        tagFilters.append(createTagButton(tag));
+      });
     };
 
     const loadPosts = async () => {
@@ -100,28 +340,31 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         .not("published_at", "is", null)
         .order("published_at", { ascending: false });
 
-      if (!container) return;
-
-      container.replaceChildren();
-
       if (error) {
-        container.append(
+        container?.replaceChildren(
           createEmptyMessage("暫時無法讀取文章，請稍後再試。")
         );
         return;
       }
 
-      const posts = (data ?? []) as PublicPost[];
-
-      if (posts.length === 0) {
-        container.append(
-          createEmptyMessage("目前還沒有公開文章。第一份檔案正在整理中。")
-        );
-        return;
-      }
-
-      posts.forEach((post) => container.append(createPostCard(post)));
+      allPosts = (data ?? []) as PublicPost[];
+      renderTagFilters();
+      renderPosts();
     };
+
+    searchInput?.addEventListener("input", () => {
+      searchQuery = searchInput.value.trim();
+      renderPosts();
+    });
+
+    clearSearch?.addEventListener("click", () => {
+      if (!searchInput) return;
+
+      searchInput.value = "";
+      searchQuery = "";
+      renderPosts();
+      searchInput.focus();
+    });
 
     loadPosts();
   </script>

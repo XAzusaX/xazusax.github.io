@@ -1,8 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+
 ---
 
-<BaseLayout title="閱讀文章 — Archive" description="Archive 的文章內容。">
+<BaseLayout title="Article — Journal" description="Archive 的文章內容。">
   <main class="reading-page">
     <a class="reading-back" href="/journal">← 返回 Journal</a>
 
@@ -21,7 +22,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   </main>
 
   <script>
+    import { renderMarkdown } from "../../../lib/markdown";
     import { supabase } from "../../../lib/supabase";
+    
 
     type PublicPost = {
       title: string;
@@ -31,7 +34,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       published_at: string;
     };
 
-    const id = new URLSearchParams(window.location.search).get("id");
+    const slug = new URLSearchParams(window.location.search).get("slug");
 
     const article =
       document.querySelector<HTMLElement>("[data-reading-article]");
@@ -62,7 +65,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     const renderContent = (text: string) => {
       if (!content) return;
 
-      content.replaceChildren();
+      content.innerHTML = renderMarkdown(text);
 
       text
         .split(/\n\s*\n/)
@@ -76,15 +79,15 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     };
 
     const loadPost = async () => {
-      if (!id) {
-        showError("找不到文章識別碼。請從 Journal 列表重新開啟文章。");
+      if (!slug) {
+        showError("找不到文章網址代號。請從 Journal 列表重新開啟文章。");
         return;
       }
 
       const { data, error } = await supabase
         .from("posts")
         .select("title, description, content, tags, published_at")
-        .eq("id", id)
+        .eq("slug", slug)
         .eq("status", "published")
         .single();
 

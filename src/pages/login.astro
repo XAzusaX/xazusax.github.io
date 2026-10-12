@@ -2,7 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="登入 Studio — Archive" description="Archive Studio 登入頁面。">
+<BaseLayout title="Login — Reverie Archive" description="Reverie Archive Studio 登入頁面。">
   <main class="studio-login-page">
     <section class="studio-login">
       <div class="studio-login-intro">
@@ -25,28 +25,54 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <p class="eyebrow">身份驗證</p>
         <h2>登入 Studio</h2>
 
-        <form class="studio-form" data-login-form>
-          <label for="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autocomplete="email"
-            placeholder="you@example.com"
-            required
-          />
+        <form class="studio-form" data-login-form novalidate>
+          <div class="form-field">
+            <label for="email">電子郵件</label>
 
-          <label for="password">密碼</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            placeholder="輸入密碼"
-            required
-          />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+              aria-describedby="email-error"
+            />
 
-          <button type="submit">登入並進入 Studio <span>→</span></button>
+            <p
+              class="field-message"
+              id="email-error"
+              data-email-error
+              aria-live="polite"
+              hidden
+            ></p>
+          </div>
+
+          <div class="form-field">
+            <label for="password">密碼</label>
+
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="輸入密碼"
+              required
+              aria-describedby="password-error"
+            />
+
+            <p
+              class="field-message"
+              id="password-error"
+              data-password-error
+              aria-live="polite"
+              hidden
+            ></p>
+          </div>
+
+          <button type="submit">
+            登入並進入 Studio <span>→</span>
+          </button>
 
           <p class="form-message" data-form-message aria-live="polite"></p>
         </form>
@@ -62,18 +88,77 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       document.querySelector<HTMLParagraphElement>("[data-form-message]");
     const button = form?.querySelector<HTMLButtonElement>("button");
 
+    const emailInput =
+      document.querySelector<HTMLInputElement>("#email");
+
+    const passwordInput =
+      document.querySelector<HTMLInputElement>("#password");
+
+    const emailError =
+      document.querySelector<HTMLParagraphElement>("[data-email-error]");
+
+    const passwordError =
+      document.querySelector<HTMLParagraphElement>("[data-password-error]");
+
+    const setFieldError = (
+      input: HTMLInputElement | null,
+      error: HTMLParagraphElement | null,
+      text: string,
+    ) => {
+      if (!input || !error) return;
+
+      input.setAttribute("aria-invalid", String(Boolean(text)));
+      error.textContent = text;
+      error.hidden = !text;
+    };
+
+    const resetButton = () => {
+      if (!button) return;
+
+      button.disabled = false;
+      button.innerHTML = "登入並進入 Studio <span>→</span>";
+    };
+
+    emailInput?.addEventListener("input", () => {
+      setFieldError(emailInput, emailError, "");
+    });
+
+    passwordInput?.addEventListener("input", () => {
+      setFieldError(passwordInput, passwordError, "");
+    });
+
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const formData = new FormData(form);
-      const email = String(formData.get("email") || "").trim();
-      const password = String(formData.get("password") || "");
+      const email = emailInput?.value.trim() ?? "";
+      const password = passwordInput?.value ?? "";
 
-      if (!email || !password || !message || !button) return;
+      setFieldError(emailInput, emailError, "");
+      setFieldError(passwordInput, passwordError, "");
+
+      if (message) {
+        message.textContent = "";
+      }
+
+      let hasError = false;
+
+      if (!email) {
+        setFieldError(emailInput, emailError, "請輸入電子郵件地址。");
+        hasError = true;
+      } else if (emailInput?.validity.typeMismatch) {
+        setFieldError(emailInput, emailError, "請輸入有效的電子郵件格式。");
+        hasError = true;
+      }
+
+      if (!password) {
+        setFieldError(passwordInput, passwordError, "請輸入密碼。");
+        hasError = true;
+      }
+
+      if (hasError || !button) return;
 
       button.disabled = true;
       button.textContent = "正在驗證…";
-      message.textContent = "";
 
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -81,9 +166,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       });
 
       if (error) {
-        message.textContent = `登入失敗：${error.message}`;
-        button.disabled = false;
-        button.innerHTML = '登入並進入 Studio <span>→</span>';
+        if (message) {
+          message.textContent = "登入失敗，請確認電子郵件與密碼是否正確。";
+        }
+
+        resetButton();
         return;
       }
 

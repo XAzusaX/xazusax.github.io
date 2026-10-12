@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Projects — Reverie Archive"
+  description="XAzusaX 的網站、工具與持續進行中的實驗。"
+>
+  <main class="projects-page">
+    <header class="projects-hero">
+      <p class="eyebrow">Archive · Project index</p>
+      <h1>Projects</h1>
+      <p>一些已完成、正在整理，或還在慢慢成形的作品。</p>
+    </header>
+
+    <section class="project-section" aria-labelledby="active-projects">
+      <div class="project-section-heading">
+        <p class="eyebrow">Active records</p>
+        <h2 id="active-projects">進行中的專案</h2>
+      </div>
+
+      <div class="project-grid">
+        <a class="project-card project-card-featured project-card-link" id="elements" href="/projects/elements">
+          <div class="project-card-topline">
+            <span>01</span>
+            <span class="project-status is-live">線上運作中</span>
+          </div>
+
+          <p class="project-type">學習工具 · 化學</p>
+          <h3>元素探索者</h3>
+          <p>
+            一個以元素週期表為入口的學生資料庫。每個元素都有可快速查閱的基本性質、電子組態、用途與相關元素。
+          </p>
+
+          <div class="project-card-footer">
+            <span>開啟元素探索者</span>
+            <span aria-hidden="true">→</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="編輯文章 — Archive Studio" description="編輯 Archive 文章。">
+<BaseLayout title="編輯文章 — Studio" description="編輯 Archive 文章。">
   <main class="editor-page">
     <header class="editor-header">
       <div>
@@ -52,14 +52,47 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       </section>
 
       <section class="editor-section">
-        <label for="content">正文</label>
+        <div class="editor-content-heading">
+          <label for="content">正文</label>
+
+          <div class="editor-mode-switch" role="tablist" aria-label="正文模式">
+            <button
+              class="editor-mode-button is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-editor-mode="write"
+            >
+              編寫
+            </button>
+
+            <button
+              class="editor-mode-button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-editor-mode="preview"
+            >
+              預覽
+            </button>
+          </div>
+        </div>
+
         <textarea
           class="editor-content"
           id="content"
           name="content"
           rows="18"
+          data-markdown-input
           required
         ></textarea>
+
+        <div class="editor-preview" data-markdown-preview hidden></div>
+
+        <p class="editor-hint">
+          支援 Markdown：<code>## 標題</code>、<code>**粗體**</code>、
+          <code>[連結](網址)</code>、清單與程式碼區塊。
+        </p>
       </section>
 
       <div class="editor-actions">
@@ -84,7 +117,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
   <script>
     import { supabase } from "../../../lib/supabase";
-
+    import { renderMarkdown } from "../../../lib/markdown";
     type Post = {
       id: string;
       title: string;
@@ -109,6 +142,44 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     const deleteButton =
       document.querySelector<HTMLButtonElement>("[data-delete]");
     const buttons = form?.querySelectorAll<HTMLButtonElement>("button");
+    const markdownInput =
+      document.querySelector<HTMLTextAreaElement>("[data-markdown-input]");
+    const markdownPreview =
+      document.querySelector<HTMLDivElement>("[data-markdown-preview]");
+    const modeButtons =
+      document.querySelectorAll<HTMLButtonElement>("[data-editor-mode]");
+
+    const setEditorMode = (mode: "write" | "preview") => {
+      const isPreview = mode === "preview";
+
+      if (markdownInput) markdownInput.hidden = isPreview;
+
+      if (markdownPreview) {
+        markdownPreview.hidden = !isPreview;
+
+        if (isPreview) {
+          markdownPreview.innerHTML = renderMarkdown(
+            markdownInput?.value || "*尚未輸入正文。*"
+          );
+        }
+      }
+
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.editorMode === mode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+    };
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.editorMode;
+
+        if (mode === "write" || mode === "preview") {
+          setEditorMode(mode);
+        }
+      });
+    });
 
     const id = new URLSearchParams(window.location.search).get("id");
     const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

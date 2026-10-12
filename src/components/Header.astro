@@ -1,35 +1,17 @@
-<header class="site-header" data-site-header>
-  <a class="wordmark" href="/" aria-label="Archive 首頁">
-    <span class="wordmark-mark" aria-hidden="true">A</span>
+---
+import { siteIdentity } from "../config/site";
+---
 
-    <span class="wordmark-copy">
-      <strong>Archive</strong>
-      <small>個人收藏</small>
-    </span>
-  </a>
-
-  <div class="header-tools">
-    <div class="header-account" data-account>
-      <a class="header-login" href="/login" data-login-link>Login</a>
-
-      <details class="account-menu" data-account-menu hidden>
-        <summary aria-label="開啟帳號選單">
-          <span class="account-avatar" data-account-avatar>A</span>
-          <span class="account-name" data-account-name>Archive</span>
-        </summary>
-
-        <div class="account-dropdown">
-          <p data-account-email></p>
-          <a href="/studio">進入 Studio →</a>
-          <button type="button" data-sign-out>登出</button>
-        </div>
-      </details>
-    </div>
-
+<header
+  class="site-header"
+  data-site-header
+  data-owner-display-name={siteIdentity.ownerDisplayName}
+>
+  <div class="header-brand">
     <button
       class="menu-toggle"
       type="button"
-      aria-label="打開選單"
+      aria-label="開啟網站選單"
       aria-controls="site-menu"
       aria-expanded="false"
       data-menu-toggle
@@ -38,78 +20,196 @@
       <span></span>
       <span></span>
     </button>
+
+    <a class="wordmark" href="/" aria-label={`${siteIdentity.siteName} 首頁`}>
+      <span class="wordmark-mark">
+        <img
+          class="wordmark-image"
+          src={siteIdentity.assets.siteLogo}
+          alt=""
+          data-site-logo
+        />
+        <span class="wordmark-fallback" aria-hidden="true">A</span>
+      </span>
+
+      <span class="wordmark-copy">
+        <strong>{siteIdentity.siteName}</strong>
+        <small>{siteIdentity.siteSubtitle}</small>
+      </span>
+    </a>
   </div>
 
-  <nav class="site-menu" id="site-menu" aria-label="網站導覽" data-site-menu>
-    <ul class="menu-list">
-      <li>
-        <a href="/journal">隨筆</a>
-      </li>
+  <div class="header-tools">
+    <div class="header-account" data-account>
+      <a class="login-link" href="/login" data-login-link hidden>
+  登入
+</a>
 
-      <li class="menu-item-with-children">
-        <button
-          class="submenu-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="projects-submenu"
-        >
-          專案
-          <span aria-hidden="true">›</span>
-        </button>
+<details class="account-menu" data-account-menu hidden>
+  <summary class="account-trigger">
+    <span class="account-avatar">
+      <img
+        src={siteIdentity.assets.ownerAvatar}
+        alt=""
+        width="44"
+        height="44"
+        data-account-avatar-image
+      />
 
-        <ul class="submenu" id="projects-submenu">
-          <li><a href="#projects">所有專案</a></li>
-          <li><a href="#elements">元素探索者</a></li>
-          <li><a href="#projects">網站與實驗</a></li>
-        </ul>
-      </li>
+      <span
+        class="account-avatar-fallback"
+        aria-hidden="true"
+        data-account-avatar-fallback
+      >
+        A
+      </span>
+    </span>
 
-      <li class="menu-item-with-children">
-        <button
-          class="submenu-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="archive-submenu"
-        >
-          Archive
-          <span aria-hidden="true">›</span>
-        </button>
+    <span class="account-name" data-account-name>
+      {siteIdentity.ownerDisplayName}
+    </span>
 
-        <ul class="submenu" id="archive-submenu">
-          <li><a href="#archive">小說與世界觀</a></li>
-          <li><a href="#archive">舊版收藏</a></li>
-        </ul>
-      </li>
+    <span class="account-caret" aria-hidden="true"></span>
+  </summary>
 
-      <li>
-        <a href="#about">關於</a>
-      </li>
-    </ul>
-  </nav>
+  <div class="account-dropdown">
+    <p data-account-email>正在讀取帳戶資料…</p>
+
+    <a href="/studio">
+      進入 Studio <span aria-hidden="true">→</span>
+    </a>
+
+    <button type="button" data-sign-out>
+      登出
+    </button>
+  </div>
+</details>
+    </div>
+  </div>
 </header>
+
+<button
+  class="menu-backdrop"
+  type="button"
+  aria-label="關閉網站選單"
+  data-menu-backdrop
+  hidden
+></button>
+
+<nav
+  class="site-menu"
+  id="site-menu"
+  aria-label="網站導覽"
+  aria-hidden="true"
+  data-site-menu
+>
+
+
+  <ul class="menu-list">
+    <li><a href="/journal">隨筆</a></li>
+
+    <li class="menu-item-with-children">
+      <button
+        class="submenu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="projects-submenu"
+      >
+        專案
+        <span aria-hidden="true">›</span>
+      </button>
+
+      <ul class="submenu" id="projects-submenu">
+        <li><a href="/projects">所有專案</a></li>
+        <li><a href="/projects/elements">元素探索者</a></li>
+      </ul>
+    </li>
+
+    <li><a href="/about">關於</a></li>
+  </ul>
+</nav>
 
 <script>
   import { supabase } from "../../lib/supabase";
 
   const header = document.querySelector<HTMLElement>("[data-site-header]");
+
+  const ownerDisplayName =
+    header?.dataset.ownerDisplayName?.trim() || "Archive";
+
   const menuToggle =
     document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
-  const siteMenu = document.querySelector<HTMLElement>("[data-site-menu]");
+
+  const menuBackdrop =
+    document.querySelector<HTMLButtonElement>("[data-menu-backdrop]");
+
+  const siteMenu =
+    document.querySelector<HTMLElement>("[data-site-menu]");
+
   const submenuToggles =
     document.querySelectorAll<HTMLButtonElement>(".submenu-toggle");
 
   const loginLink =
     document.querySelector<HTMLAnchorElement>("[data-login-link]");
+
   const accountMenu =
     document.querySelector<HTMLDetailsElement>("[data-account-menu]");
-  const avatar =
-    document.querySelector<HTMLSpanElement>("[data-account-avatar]");
+
+  const avatarFallback =
+    document.querySelector<HTMLElement>("[data-account-avatar-fallback]");
+
+  const accountAvatarImage =
+    document.querySelector<HTMLImageElement>(
+      "[data-account-avatar-image]"
+    );
+
+  const siteLogo =
+    document.querySelector<HTMLImageElement>("[data-site-logo]");
+
   const name =
     document.querySelector<HTMLSpanElement>("[data-account-name]");
+
   const email =
     document.querySelector<HTMLParagraphElement>("[data-account-email]");
+
   const signOutButton =
     document.querySelector<HTMLButtonElement>("[data-sign-out]");
+
+  const accountTrigger =
+  accountMenu?.querySelector<HTMLElement>(".account-trigger");
+
+let accountCloseTimer: number | undefined;
+
+const closeAccount = () => {
+  if (!accountMenu?.open) return;
+
+  window.clearTimeout(accountCloseTimer);
+
+  accountMenu.classList.add("is-closing");
+
+  accountCloseTimer = window.setTimeout(() => {
+    accountMenu.open = false;
+    accountMenu.classList.remove("is-closing");
+  }, 240);
+};
+
+const openAccount = () => {
+  if (!accountMenu) return;
+
+  window.clearTimeout(accountCloseTimer);
+  accountMenu.classList.remove("is-closing");
+  accountMenu.open = true;
+};
+
+accountTrigger?.addEventListener("click", (event) => {
+  event.preventDefault();
+
+  if (accountMenu?.open) {
+    closeAccount();
+  } else {
+    openAccount();
+  }
+});
 
   const closeSubmenus = () => {
     submenuToggles.forEach((button) => {
@@ -117,30 +217,42 @@
     });
   };
 
-  const closeMenu = () => {
-    if (!menuToggle || !siteMenu) return;
+  const setMenu = (isOpen: boolean) => {
+    if (!menuToggle || !siteMenu || !menuBackdrop) return;
 
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.setAttribute("aria-label", "打開選單");
-    siteMenu.classList.remove("is-open");
-    closeSubmenus();
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+    menuToggle.setAttribute(
+      "aria-label",
+      isOpen ? "關閉網站選單" : "開啟網站選單"
+    );
+
+    siteMenu.classList.toggle("is-open", isOpen);
+    siteMenu.setAttribute("aria-hidden", String(!isOpen));
+
+    menuBackdrop.hidden = !isOpen;
+    menuBackdrop.classList.toggle("is-open", isOpen);
+
+    document.body.classList.toggle("menu-is-open", isOpen);
+
+    if (isOpen) {
+      closeAccount();
+    } else {
+      closeSubmenus();
+      menuToggle.focus();
+    }
   };
 
   menuToggle?.addEventListener("click", () => {
-    if (!siteMenu) return;
-
     const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
-
-    menuToggle.setAttribute("aria-expanded", String(!isOpen));
-    menuToggle.setAttribute("aria-label", isOpen ? "打開選單" : "關閉選單");
-    siteMenu.classList.toggle("is-open", !isOpen);
-
-    if (isOpen) closeSubmenus();
+    setMenu(!isOpen);
   });
+
+  menuBackdrop?.addEventListener("click", () => setMenu(false));
 
   submenuToggles.forEach((button) => {
     button.addEventListener("click", () => {
-      const isOpen = button.getAttribute("aria-expanded") === "true";
+      const isOpen =
+        button.getAttribute("aria-expanded") === "true";
 
       submenuToggles.forEach((otherButton) => {
         otherButton.setAttribute("aria-expanded", "false");
@@ -150,47 +262,90 @@
     });
   });
 
-  document.addEventListener("click", (event) => {
-    if (!header || !(event.target instanceof Node)) return;
-
-    if (!header.contains(event.target)) {
-      closeMenu();
-    }
-  });
-
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeMenu();
+    if (event.key !== "Escape") return;
+
+    if (accountMenu?.open) {
+      closeAccount();
+    }
+
+    setMenu(false);
   });
 
   siteMenu?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", closeMenu);
+    link.addEventListener("click", () => setMenu(false));
   });
 
-  const renderAccount = (user: {
-    email?: string;
-    user_metadata?: Record<string, unknown>;
-  } | null) => {
-    if (!loginLink || !accountMenu || !avatar || !name || !email) return;
-
-    if (!user) {
-      loginLink.hidden = false;
-      accountMenu.hidden = true;
-      accountMenu.open = false;
-      return;
+  accountMenu?.addEventListener("toggle", () => {
+    if (accountMenu.open) {
+      setMenu(false);
     }
+  });
 
-    const metadata = user.user_metadata ?? {};
-    const displayName =
-      String(metadata.full_name || metadata.name || "").trim() ||
-      user.email?.split("@")[0] ||
-      "Writer";
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Node)) return;
 
-    loginLink.hidden = true;
-    accountMenu.hidden = false;
-    avatar.textContent = displayName.slice(0, 1).toUpperCase();
-    name.textContent = displayName;
+    if (accountMenu?.open && !accountMenu.contains(event.target)) {
+      closeAccount();
+    }
+  });
+
+ const renderAccount = (user: { email?: string } | null) => {
+  const isSignedIn = Boolean(user);
+
+  /* 不讓任何舊 CSS 覆蓋登入／帳戶的顯示狀態 */
+  if (loginLink) {
+    loginLink.hidden = isSignedIn;
+    loginLink.style.setProperty(
+      "display",
+      isSignedIn ? "none" : "inline-flex",
+      "important"
+    );
+  }
+
+  if (accountMenu) {
+    accountMenu.hidden = !isSignedIn;
+    accountMenu.style.setProperty(
+      "display",
+      isSignedIn ? "flex" : "none",
+      "important"
+    );
+
+    if (!isSignedIn) {
+      accountMenu.open = false;
+    }
+  }
+
+  /* 未登入時不用繼續填寫帳戶資料 */
+  if (!user) return;
+
+  if (avatarFallback) {
+    avatarFallback.textContent = ownerDisplayName
+      .slice(0, 1)
+      .toUpperCase();
+  }
+
+  if (name) {
+    name.textContent = ownerDisplayName;
+  }
+
+  if (email) {
     email.textContent = user.email ?? "";
-  };
+  }
+};
+
+  accountAvatarImage?.addEventListener("error", () => {
+    accountAvatarImage.hidden = true;
+  });
+
+  siteLogo?.addEventListener("error", () => {
+    siteLogo.hidden = true;
+  });
+
+  signOutButton?.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.assign("/");
+  });
 
   const loadAccount = async () => {
     const {
@@ -202,11 +357,6 @@
 
   supabase.auth.onAuthStateChange((_event, session) => {
     renderAccount(session?.user ?? null);
-  });
-
-  signOutButton?.addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    window.location.assign("/");
   });
 
   loadAccount();

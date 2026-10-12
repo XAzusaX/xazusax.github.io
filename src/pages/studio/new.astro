@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="新建文章 — Archive Studio" description="建立新的 Archive 文章。">
+<BaseLayout title="新建文章 — Studio" description="建立新的 Archive 文章。">
   <main class="editor-page">
     <header class="editor-header">
       <div>
@@ -69,16 +69,49 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       </section>
 
       <section class="editor-section">
+      <div class="editor-content-heading">
         <label for="content">正文</label>
-        <textarea
-          class="editor-content"
-          id="content"
-          name="content"
-          rows="18"
-          placeholder="从这里开始写。"
-          required
-        ></textarea>
-      </section>
+
+        <div class="editor-mode-switch" role="tablist" aria-label="正文模式">
+          <button
+            class="editor-mode-button is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-editor-mode="write"
+          >
+            編寫
+          </button>
+
+          <button
+            class="editor-mode-button"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-editor-mode="preview"
+          >
+            預覽
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        class="editor-content"
+        id="content"
+        name="content"
+        rows="18"
+        placeholder="從這裡開始寫。"
+        data-markdown-input
+        required
+      ></textarea>
+
+      <div class="editor-preview" data-markdown-preview hidden></div>
+
+      <p class="editor-hint">
+        支援 Markdown：<code>## 標題</code>、<code>**粗體**</code>、
+        <code>[連結](網址)</code>、清單與程式碼區塊。
+      </p>
+    </section>
 
       <div class="editor-actions">
         <p class="editor-message" data-editor-message aria-live="polite"></p>
@@ -98,6 +131,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
   <script>
     import { supabase } from "../../../lib/supabase";
+    import { renderMarkdown } from "../../../lib/markdown";
 
     const form = document.querySelector<HTMLFormElement>("[data-post-form]");
     const message =
@@ -107,6 +141,44 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     const buttons = form?.querySelectorAll<HTMLButtonElement>(
       'button[type="submit"]',
     );
+    const markdownInput =
+      document.querySelector<HTMLTextAreaElement>("[data-markdown-input]");
+    const markdownPreview =
+      document.querySelector<HTMLDivElement>("[data-markdown-preview]");
+    const modeButtons =
+      document.querySelectorAll<HTMLButtonElement>("[data-editor-mode]");
+
+    const setEditorMode = (mode: "write" | "preview") => {
+      const isPreview = mode === "preview";
+
+      if (markdownInput) markdownInput.hidden = isPreview;
+
+      if (markdownPreview) {
+        markdownPreview.hidden = !isPreview;
+
+        if (isPreview) {
+          markdownPreview.innerHTML = renderMarkdown(
+            markdownInput?.value || "*尚未輸入正文。*"
+          );
+        }
+      }
+
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.editorMode === mode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+    };
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.editorMode;
+
+        if (mode === "write" || mode === "preview") {
+          setEditorMode(mode);
+        }
+      });
+    });
 
     const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
