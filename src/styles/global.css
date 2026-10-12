@@ -4663,3 +4663,141 @@ body.menu-is-open {
 .about-page {
   padding-top: 2.25rem;
 }
+
+/* 404：遺失檔案頁面 */
+.not-found-page {
+  display: grid;
+  min-height: calc(100svh - var(--site-header-height) - 7rem);
+  padding: clamp(3.5rem, 10vw, 8rem) 0;
+  place-items: center;
+}
+
+.not-found-record {
+  display: grid;
+  width: min(100%, 1040px);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.72fr);
+  gap: clamp(2.5rem, 8vw, 7rem);
+  align-items: center;
+}
+
+.not-found-copy h1 {
+  max-width: 9ch;
+  margin: 0.45rem 0 1.25rem;
+  color: var(--ink);
+  font-size: clamp(3.6rem, 7vw, 6.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+}
+
+.not-found-copy > p:not(.eyebrow) {
+  max-width: 31rem;
+  margin: 0;
+  color: var(--gray-700);
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.not-found-primary,
+.not-found-secondary {
+  display: inline-flex;
+  min-height: 3rem;
+  padding: 0 1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.not-found-primary {
+  color: #ffffff;
+  background: var(--blue);
+  border: 1px solid var(--blue);
+}
+
+.not-found-primary:hover {
+  background: #174ea8;
+  transform: translateY(-0.15rem);
+}
+
+.not-found-secondary {
+  color: #173b68;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid var(--blue-200);
+}
+
+.not-found-secondary:hover {
+  color: var(--blue);
+  background: var(--blue-50);
+  border-color: var(--blue);
+}
+
+.not-found-index {
+  display: flex;
+  aspect-ratio: 1 / 1;
+  padding: 1.15rem;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%),
+    #1d4c9b;
+  box-shadow: 1.25rem 1.25rem 2.5rem rgba(29, 76, 155, 0.16);
+}
+
+.not-found-index-top,
+.not-found-index-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.not-found-index-mark {
+  display: grid;
+  width: 7rem;
+  height: 7rem;
+  margin: auto;
+  color: var(--blue);
+  background: #ffffff;
+  border-radius: 50%;
+  font-size: 4rem;
+  font-weight: 800;
+  place-items: center;
+}
+
+@media (max-width: 719px) {
+  .not-found-page {
+    min-height: calc(100svh - var(--site-header-height));
+    padding: 2.75rem 0 3.5rem;
+    place-items: start center;
+  }
+
+  .not-found-record {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .not-found-copy h1 {
+    font-size: clamp(3.35rem, 16vw, 5rem);
+  }
+
+  .not-found-index {
+    width: min(100%, 20rem);
+    justify-self: center;
+  }
+}
