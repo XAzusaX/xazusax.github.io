@@ -1,0 +1,833 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { elementDetailCopy } from "../i18n/element-detail";
+import { elementAttributionCopy } from "../i18n/element-attribution";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = elementDetailCopy[locale];
+const attribution = elementAttributionCopy[locale];
+
+const tablePath = localizePath(locale, "/projects/elements");
+const detailPath = localizePath(locale, "/projects/elements/read");
+---
+
+<BaseLayout
+  title={copy.pageTitle}
+  description={copy.pageDescription}
+>
+<main
+  class="element-detail-page"
+  data-element-table-path={tablePath}
+  data-element-detail-path={detailPath}
+  data-element-locale={locale}
+>
+    <a class="element-detail-back" href={tablePath}>
+      {copy.backToTable}
+    </a>
+
+    <p class="studio-loading" data-element-loading>{copy.loading}</p>
+
+    <article class="element-detail" data-element-detail hidden>
+        <header class="element-detail-hero">
+            <div class="element-identity">
+            <p class="eyebrow">{copy.record}</p>
+
+            <div class="element-symbol-display" data-element-symbol></div>
+
+            <div>
+                <h1 data-element-name></h1>
+                <p class="element-english-name" data-element-english-name></p>
+            </div>
+            </div>
+
+            <dl class="element-key-data">
+            <div>
+                <dt>{copy.labels.atomicNumber}</dt>
+                <dd data-element-number></dd>
+            </div>
+
+            <div>
+                <dt>{copy.labels.atomicMass}</dt>
+                <dd data-element-mass></dd>
+            </div>
+
+            <div>
+                <dt>{copy.labels.category}</dt>
+                <dd data-element-category></dd>
+            </div>
+
+            <div>
+                <dt>{copy.labels.phase}</dt>
+                <dd data-element-phase></dd>
+            </div>
+            </dl>
+        </header>
+
+        <section class="element-detail-section">
+            <p class="eyebrow">{copy.labels.position}</p>
+            <h2>{copy.labels.periodicPosition}</h2>
+
+            <dl class="element-facts-grid">
+            <div>
+                <dt class="term-label">
+                {copy.labels.period}
+                <span class="term-help-wrap">
+                  <button
+                    class="term-help"
+                    type="button"
+                    data-term-help
+                    aria-label={copy.helpLabel(copy.labels.period)}
+                    aria-expanded="false"
+                  >
+                    ?
+                  </button>
+                  <span class="term-tooltip" role="tooltip">
+                    {copy.help.period}
+                  </span>
+                </span>
+              </dt>
+                <dd data-element-period></dd>
+            </div>
+
+            <div>
+                <dt class="term-label">
+                  {copy.labels.group}
+                  <span class="term-help-wrap">
+                    <button class="term-help" type="button" data-term-help aria-label={copy.helpLabel(copy.labels.group)} aria-expanded="false">?</button>
+                    <span class="term-tooltip" role="tooltip">
+                      {copy.help.group}                    
+                    </span>
+                  </span>
+                </dt>
+                <dd data-element-group></dd>
+            </div>
+
+            <div>
+                <dt class="term-label">
+                  {copy.labels.block}
+                  <span class="term-help-wrap">
+                    <button class="term-help" type="button" data-term-help aria-label={copy.helpLabel(copy.labels.block)} aria-expanded="false">?</button>
+                    <span class="term-tooltip" role="tooltip">
+                      {copy.help.block}
+                    </span>
+                  </span>
+                </dt>
+                <dd data-element-block></dd>
+            </div>
+
+            <div>
+                <dt class="term-label">
+                  {copy.labels.electronegativity}
+                  <span class="term-help-wrap">
+                    <button class="term-help" type="button" data-term-help aria-label={copy.helpLabel(copy.labels.electronegativity)} aria-expanded="false">?</button>
+                    <span class="term-tooltip" role="tooltip">
+                      {copy.help.electronegativity}
+                    </span>
+                  </span>
+                </dt>
+                <dd data-element-electronegativity></dd>
+            </div>
+            </dl>
+        </section>
+
+        <section class="element-detail-section">
+            <p class="eyebrow">{copy.labels.electronStructure}</p>
+            <h2 class="term-heading">
+              {copy.labels.electronConfiguration}
+              <span class="term-help-wrap">
+                <button
+                  class="term-help"
+                  type="button"
+                  data-term-help
+                  aria-label={copy.helpLabel(copy.labels.electronConfiguration)}
+                  aria-expanded="false"
+                >
+                  ?
+                </button>
+                <span class="term-tooltip" role="tooltip">
+                  {copy.help.electronConfiguration}
+                </span>
+              </span>
+            </h2>
+
+            <p class="element-configuration" data-element-configuration></p>
+            <p class="element-configuration-full" data-element-configuration-full></p>
+            <p class="element-shells">
+              {copy.labels.electronShells}
+              <strong data-element-shells></strong>
+            </p>
+        </section>
+        <section class="element-detail-section" data-related-section hidden>
+        <p class="eyebrow">{copy.labels.periodicFamily}</p>
+        <h2>{copy.labels.sameGroup}</h2>
+        <p class="element-related-intro" data-related-intro></p>
+
+        <div class="element-related-list" data-related-elements></div>
+        </section>
+        <section class="element-detail-section" data-element-notes hidden>
+            <p class="eyebrow">{copy.labels.archiveNotes}</p>
+            <h2>{copy.labels.propertiesAndUses}</h2>
+
+            <p class="element-description" data-element-description></p>
+
+            <div class="element-use-list" data-element-uses></div>
+        </section>
+        <section
+          class="element-detail-section"
+          data-element-learning
+          hidden
+        >
+          <p class="eyebrow">{copy.labels.learningNotes}</p>
+          <h2>{copy.labels.furtherLearning}</h2>
+
+          <div class="element-learning-list" data-element-learning-list></div>
+        </section>
+        <section class="element-detail-section">
+            <p class="eyebrow">{copy.labels.physicalPropertiesEyebrow}</p>
+            <h2>{copy.labels.physicalProperties}</h2>
+
+            <dl class="element-facts-grid">
+                <div>
+                    <dt>{copy.labels.density}</dt>
+                    <dd data-element-density></dd>
+                </div>
+
+                <div>
+                    <dt>{copy.labels.meltingPoint}</dt>
+                    <dd data-element-melt></dd>
+                </div>
+
+                <div>
+                    <dt>{copy.labels.boilingPoint}</dt>
+                    <dd data-element-boil></dd>
+                </div>
+            </dl>
+        </section>
+        <nav
+          class="element-page-navigation"
+          data-element-page-navigation
+          aria-label={copy.labels.navigation}
+          hidden
+        >
+          <a
+            class="element-page-navigation-link element-page-navigation-previous"
+            data-previous-element
+          >
+            <span>{copy.labels.previous}</span>
+            <strong data-previous-element-name></strong>
+          </a>
+
+          <a class="element-page-navigation-table" href={tablePath}>
+            {copy.backToTable}
+          </a>
+
+          <a
+            class="element-page-navigation-link element-page-navigation-next"
+            data-next-element
+          >
+            <span>{copy.labels.next}</span>
+            <strong data-next-element-name></strong>
+          </a>
+        </nav>
+    </article>
+
+    <p class="studio-empty" data-element-error hidden></p>
+
+    <footer class="elements-attribution">
+      <p>
+        {attribution.sourcePrefix}
+        <a
+          href="https://github.com/Bowserinator/Periodic-Table-JSON"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Bowserinator / Periodic-Table-JSON
+        </a>
+        {attribution.licensePrefix}
+        <a
+          href="https://creativecommons.org/licenses/by-sa/3.0/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          CC BY-SA 3.0
+        </a>
+        {attribution.suffix}
+      </p>
+    </footer>
+  </main>
+
+  <script>
+import { elements, getElementBySymbol } from "../data/elements";
+import { getLocalizedElementNote } from "../i18n/element-note-display";
+import { getElementName } from "../i18n/element-display";
+import type { Locale } from "../i18n/config";
+import { elementExplorerCopy } from "../i18n/elements";
+import { elementDetailRuntimeCopy } from "../i18n/element-detail-runtime";
+
+  const symbol = new URLSearchParams(window.location.search).get("symbol");
+  const page =
+    document.querySelector<HTMLElement>(".element-detail-page");
+
+  const tablePath =
+    page?.dataset.elementTablePath ?? "/projects/elements";
+
+  const detailPath =
+    page?.dataset.elementDetailPath ?? "/projects/elements/read";
+
+  const currentLocale =
+    (page?.dataset.elementLocale ?? "en") as Locale;
+  const runtimeCopy = elementDetailRuntimeCopy[currentLocale];
+  const explorerCopy = elementExplorerCopy[currentLocale];
+  const loading =
+    document.querySelector<HTMLParagraphElement>("[data-element-loading]");
+
+  const detail =
+    document.querySelector<HTMLElement>("[data-element-detail]");
+
+  const error =
+    document.querySelector<HTMLParagraphElement>("[data-element-error]");
+
+  const text = (selector: string, value: string) => {
+    const target = document.querySelector<HTMLElement>(selector);
+
+    if (target) {
+      target.textContent = value;
+    }
+  };
+
+  const showError = (message: string) => {
+    loading?.remove();
+
+    if (error) {
+      error.hidden = false;
+      error.textContent = message;
+    }
+  };
+
+  const formatNumber = (value: number | null, suffix = "") =>
+    value === null || Number.isNaN(value)
+      ? runtimeCopy.missingData
+      : `${value}${suffix}`;
+
+  if (!symbol) {
+    showError(runtimeCopy.missingSymbol);
+  } else {
+    
+    const element = getElementBySymbol(symbol);
+    if (!element) {
+      showError(runtimeCopy.notFound);
+    } else {
+      const elementName = getElementName(element, currentLocale);
+      document.title = runtimeCopy.documentTitle(
+        elementName,
+        element.symbol
+      );
+
+      text("[data-element-symbol]", element.symbol);
+      text("[data-element-name]", elementName);
+      text("[data-element-english-name]", element.name);
+      text("[data-element-number]", String(element.number));
+      text("[data-element-mass]", formatNumber(element.atomicMass, " u"));
+      text(
+        "[data-element-category]",
+        explorerCopy.categories[element.category] ?? runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-phase]",
+        runtimeCopy.phases[element.phase] ?? runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-period]",
+        element.period
+          ? runtimeCopy.period(element.period)
+          : runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-group]",
+        element.group
+          ? runtimeCopy.group(element.group)
+          : runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-block]",
+        element.block
+          ? runtimeCopy.block(element.block)
+          : runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-electronegativity]",
+        formatNumber(element.electronegativity)
+      );
+
+      text(
+        "[data-element-configuration]",
+        element.electronConfiguration ?? runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-configuration-full]",
+        element.electronConfigurationFull
+          ? runtimeCopy.fullConfiguration(
+              element.electronConfigurationFull
+            )
+          : ""
+      );
+
+      text(
+        "[data-element-shells]",
+        element.shells?.length
+          ? element.shells.join(" · ")
+          : runtimeCopy.missingData
+      );
+
+      text(
+        "[data-element-density]",
+        element.density === null
+          ? runtimeCopy.missingData
+          : `${element.density} ${element.densityUnit ?? ""}`.trim()
+      );
+
+      text("[data-element-melt]", formatNumber(element.melt, " K"));
+      text("[data-element-boil]", formatNumber(element.boil, " K"));
+
+      const relatedSection =
+        document.querySelector<HTMLElement>("[data-related-section]");
+
+      const relatedIntro =
+        document.querySelector<HTMLParagraphElement>(
+          "[data-related-intro]"
+        );
+
+      const relatedList =
+        document.querySelector<HTMLDivElement>(
+          "[data-related-elements]"
+        );
+
+      const relatedElements = elements.filter(
+        (candidate) =>
+          candidate.group === element.group &&
+          candidate.symbol !== element.symbol &&
+          candidate.group !== null
+      );
+
+      if (relatedElements.length && relatedSection && relatedList) {
+        if (relatedIntro) {
+          relatedIntro.textContent =
+            element.group !== null
+              ? runtimeCopy.sameGroupIntro(element.group)
+              : "";        
+            }
+
+        relatedElements.forEach((related) => {
+          const link = document.createElement("a");
+
+          link.href = `${detailPath}?symbol=${encodeURIComponent(
+            related.symbol
+          )}`;
+
+          link.setAttribute(
+            "aria-label",
+            runtimeCopy.openRelatedElement(
+              getElementName(related, currentLocale),
+              related.symbol
+            )
+          );
+
+          const relatedSymbol = document.createElement("strong");
+          relatedSymbol.textContent = related.symbol;
+
+          const name = document.createElement("span");
+          name.textContent = getElementName(related, currentLocale);
+
+          link.append(relatedSymbol, name);
+          relatedList.append(link);
+        });
+
+        relatedSection.hidden = false;
+      }
+
+      const note = getLocalizedElementNote(
+        element.symbol,
+        currentLocale,
+      );
+
+      if (note) {
+        text("[data-element-description]", note.description);
+
+        const uses =
+          document.querySelector<HTMLDivElement>(
+            "[data-element-uses]"
+          );
+
+        note.uses.forEach((use) => {
+          const item = document.createElement("span");
+          item.textContent = use;
+          uses?.append(item);
+        });
+
+        document
+          .querySelector<HTMLElement>("[data-element-notes]")
+          ?.removeAttribute("hidden");
+
+        const learningSection =
+          document.querySelector<HTMLElement>(
+            "[data-element-learning]"
+          );
+
+        const learningList =
+          document.querySelector<HTMLDivElement>(
+            "[data-element-learning-list]"
+          );
+
+        const createLearningCard = (
+          title: string,
+          content: HTMLElement
+        ) => {
+          const card = document.createElement("article");
+          card.className = "element-learning-card";
+
+          const heading = document.createElement("h3");
+          heading.textContent = title;
+
+          card.append(heading, content);
+          return card;
+        };
+
+        const learningCards: HTMLElement[] = [];
+
+        if (note.appearance) {
+          const content = document.createElement("p");
+          content.textContent = note.appearance;
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.appearance, content)
+          );
+        }
+
+        if (note.lifeRole) {
+          const content = document.createElement("p");
+          content.textContent = note.lifeRole;
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.lifeRole, content)
+          );
+        }
+
+        if (note.compounds?.length) {
+          const list = document.createElement("div");
+          list.className = "element-compound-list";
+
+          note.compounds.forEach((compound) => {
+            const item = document.createElement("div");
+
+            const formula = document.createElement("strong");
+            formula.textContent = compound.formula;
+
+            const name = document.createElement("span");
+            name.textContent = compound.name;
+
+            const description = document.createElement("p");
+            description.textContent = compound.description;
+
+            item.append(formula, name, description);
+            list.append(item);
+          });
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.compounds, list)
+          );
+        }
+
+        if (note.reactions?.length) {
+          const list = document.createElement("div");
+          list.className = "element-reaction-list";
+
+          note.reactions.forEach((reaction) => {
+            const item = document.createElement("div");
+
+            const equation = document.createElement("code");
+            equation.textContent = reaction.equation;
+
+            const description = document.createElement("p");
+            description.textContent = reaction.description;
+
+            item.append(equation, description);
+
+            if (reaction.conditions) {
+              const conditions = document.createElement("small");
+              conditions.textContent = runtimeCopy.learning.conditions(reaction.conditions);
+              item.append(conditions);
+            }
+
+            list.append(item);
+          });
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.reactions, list)
+          );
+        }
+
+        if (note.safety?.length) {
+          const list = document.createElement("div");
+          list.className = "element-safety-list";
+
+          note.safety.forEach((safety) => {
+            const item = document.createElement("div");
+            item.dataset.level = safety.level;
+
+            const level = document.createElement("strong");
+            level.textContent =
+              runtimeCopy.safetyLevels[safety.level.toLocaleLowerCase()] ??
+              safety.level;
+
+            const description = document.createElement("p");
+            description.textContent = safety.description;
+
+            item.append(level, description);
+            list.append(item);
+          });
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.safety, list)
+          );
+        }
+
+        if (note.isotopes?.length) {
+          const list = document.createElement("div");
+          list.className = "element-isotope-list";
+
+          note.isotopes.forEach((isotope) => {
+            const item = document.createElement("div");
+
+            const notation = document.createElement("strong");
+            notation.textContent = isotope.notation;
+
+            const use = document.createElement("span");
+            use.textContent = isotope.use;
+
+            item.append(notation, use);
+
+            if (isotope.description) {
+              const description = document.createElement("p");
+              description.textContent = isotope.description;
+              item.append(description);
+            }
+
+            list.append(item);
+          });
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.isotopes, list)
+          );
+        }
+
+        if (note.reliability) {
+          const content = document.createElement("div");
+          content.className = "element-reliability";
+
+          const level = document.createElement("strong");
+          level.textContent = note.reliability.level;
+
+          const description = document.createElement("p");
+          description.textContent = note.reliability.description;
+
+          content.append(level, description);
+
+          learningCards.push(
+            createLearningCard(runtimeCopy.learning.reliability, content)
+          );
+        }
+
+        if (learningCards.length && learningList && learningSection) {
+          learningList.replaceChildren(...learningCards);
+          learningSection.hidden = false;
+        }
+      }
+
+      const navigation =
+        document.querySelector<HTMLElement>(
+          "[data-element-page-navigation]"
+        );
+
+      const previousLink =
+        document.querySelector<HTMLAnchorElement>(
+          "[data-previous-element]"
+        );
+
+      const nextLink =
+        document.querySelector<HTMLAnchorElement>(
+          "[data-next-element]"
+        );
+
+      const previousName =
+        document.querySelector<HTMLElement>(
+          "[data-previous-element-name]"
+        );
+
+      const nextName =
+        document.querySelector<HTMLElement>(
+          "[data-next-element-name]"
+        );
+
+      const currentIndex = elements.findIndex(
+        (candidate) => candidate.symbol === element.symbol
+      );
+
+      const previousElement =
+        currentIndex > 0 ? elements[currentIndex - 1] : null;
+
+      const nextElement =
+        currentIndex < elements.length - 1
+          ? elements[currentIndex + 1]
+          : null;
+
+      if (previousElement && previousLink && previousName) {
+        previousLink.href =
+        `${detailPath}?symbol=${encodeURIComponent(
+          previousElement.symbol
+        )}`;
+
+        previousName.textContent =
+          `${previousElement.symbol} · ${getElementName(
+            previousElement,
+            currentLocale
+          )}`;
+      } else if (previousLink) {
+        previousLink.style.visibility = "hidden";
+        previousLink.tabIndex = -1;
+      }
+
+      if (nextElement && nextLink && nextName) {
+        nextLink.href =
+        `${detailPath}?symbol=${encodeURIComponent(
+          nextElement.symbol
+        )}`;
+
+        nextName.textContent =
+          `${nextElement.symbol} · ${getElementName(
+            nextElement,
+            currentLocale
+          )}`;
+      } else if (nextLink) {
+        nextLink.style.visibility = "hidden";
+        nextLink.tabIndex = -1;
+      }
+
+      navigation?.removeAttribute("hidden");
+      detail?.removeAttribute("hidden");
+      loading?.remove();
+    }
+  }
+
+  const termHelpButtons =
+    document.querySelectorAll<HTMLButtonElement>("[data-term-help]");
+
+  const positionTermTooltip = (wrap: HTMLElement) => {
+    const button =
+      wrap.querySelector<HTMLButtonElement>("[data-term-help]");
+
+    const tooltip =
+      wrap.querySelector<HTMLElement>(".term-tooltip");
+
+    if (!button || !tooltip) return;
+
+    const buttonRect = button.getBoundingClientRect();
+    const tooltipWidth = tooltip.offsetWidth;
+    const pagePadding = 12;
+    const arrowPadding = 14;
+
+    const preferredLeft = buttonRect.left;
+
+    const safeLeft = Math.min(
+      Math.max(preferredLeft, pagePadding),
+      window.innerWidth - tooltipWidth - pagePadding
+    );
+
+    const arrowPosition = Math.min(
+      Math.max(
+        buttonRect.left + buttonRect.width / 2 - safeLeft,
+        arrowPadding
+      ),
+      tooltipWidth - arrowPadding
+    );
+
+    wrap.style.setProperty(
+      "--term-tooltip-offset-x",
+      `${safeLeft - preferredLeft}px`
+    );
+
+    wrap.style.setProperty(
+      "--term-tooltip-arrow-x",
+      `${arrowPosition}px`
+    );
+  };
+
+  const closeTermHelp = () => {
+    document
+      .querySelectorAll<HTMLElement>(".term-help-wrap.is-visible")
+      .forEach((wrap) => {
+        wrap.classList.remove("is-visible");
+
+        wrap
+          .querySelector<HTMLButtonElement>("[data-term-help]")
+          ?.setAttribute("aria-expanded", "false");
+      });
+  };
+
+  termHelpButtons.forEach((button) => {
+    const wrap = button.closest<HTMLElement>(".term-help-wrap");
+
+    if (!wrap) return;
+
+    wrap.addEventListener("pointerenter", () => {
+      positionTermTooltip(wrap);
+    });
+
+    button.addEventListener("focus", () => {
+      positionTermTooltip(wrap);
+    });
+
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      const willOpen = !wrap.classList.contains("is-visible");
+
+      closeTermHelp();
+
+      if (willOpen) {
+        positionTermTooltip(wrap);
+        wrap.classList.add("is-visible");
+        button.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+
+  document.addEventListener("click", closeTermHelp);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+
+    closeTermHelp();
+
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    document
+      .querySelectorAll<HTMLElement>(".term-help-wrap")
+      .forEach(positionTermTooltip);
+  });
+</script>
+</BaseLayout>

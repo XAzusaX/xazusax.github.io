@@ -1,0 +1,122 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { homeCopy } from "../i18n/home";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = homeCopy[locale];
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <main>
+    <section class="hero" aria-labelledby="home-title">
+      <div class="hero-copy">
+        <p class="eyebrow reveal" style="--delay: 100ms">
+          {copy.eyebrow}
+        </p>
+
+        <h1 class="reveal" id="home-title" style="--delay: 220ms">
+          {copy.headingTop}<br />{copy.headingBottom}
+        </h1>
+
+        <p class="hero-description reveal" style="--delay: 360ms">
+          {copy.intro}
+        </p>
+
+        <a class="hero-link reveal" href="#collections" style="--delay: 500ms">
+          {copy.explore} <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <div
+        class="hero-artefact reveal"
+        style="--delay: 300ms"
+        aria-label={copy.artifactLabel}
+      >
+        <div class="artefact-topline">
+          <span>REVERIE ARCHIVE</span>
+          <span>1113</span>
+        </div>
+
+        <div class="artefact-orbit">
+          <span class="orbit-ring orbit-ring-one"></span>
+          <span class="orbit-ring orbit-ring-two"></span>
+          <span class="orbit-core">A</span>
+        </div>
+
+        <div class="artefact-bottom">
+          <span>PERSONAL INDEX</span>
+          <span>STATUS: ONLINE</span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="collections"
+      id="collections"
+      aria-labelledby="collections-title"
+    >
+      <div class="section-intro scroll-reveal">
+        <p class="eyebrow">{copy.collectionsEyebrow}</p>
+        <h2 id="collections-title">{copy.collectionsTitle}</h2>
+      </div>
+
+      <div class="archive-grid">
+        <a
+          class="archive-card scroll-reveal"
+          id="journal"
+          href={localizePath(locale, "/journal")}
+          style="--delay: 0ms"
+        >
+          <span class="card-number">01</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
+
+          <div>
+            <h3>{copy.journalTitle}</h3>
+            <p>{copy.journalDescription}</p>
+          </div>
+        </a>
+
+        <a
+          class="archive-card scroll-reveal"
+          id="projects"
+          href={localizePath(locale, "/projects")}
+          style="--delay: 100ms"
+        >
+          <span class="card-number">02</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
+
+          <div>
+            <h3>{copy.projectsTitle}</h3>
+            <p>{copy.projectsDescription}</p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const scrollElements = document.querySelectorAll(".scroll-reveal");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.18,
+        rootMargin: "0px 0px -8% 0px",
+      },
+    );
+
+    scrollElements.forEach((element) => observer.observe(element));
+  </script>
+</BaseLayout>

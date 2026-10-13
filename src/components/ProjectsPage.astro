@@ -1,0 +1,51 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { projectsCopy } from "../i18n/projects";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = projectsCopy[locale];
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <main class="projects-page">
+    <header class="projects-hero">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>Projects</h1>
+      <p>{copy.intro}</p>
+    </header>
+
+    <section class="project-section" aria-labelledby="active-projects">
+      <div class="project-section-heading">
+        <p class="eyebrow">{copy.activeRecords}</p>
+        <h2 id="active-projects">{copy.activeProjects}</h2>
+      </div>
+
+      <div class="project-grid">
+        <a
+          class="project-card project-card-featured project-card-link"
+          id="elements"
+          href={localizePath(locale, "/projects/elements")}
+        >
+          <div class="project-card-topline">
+            <span>01</span>
+            <span class="project-status is-live">{copy.statusLive}</span>
+          </div>
+
+          <p class="project-type">{copy.projectType}</p>
+          <h3>{copy.elementExplorer}</h3>
+          <p>{copy.elementDescription}</p>
+
+          <div class="project-card-footer">
+            <span>{copy.openElementExplorer}</span>
+            <span aria-hidden="true">→</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

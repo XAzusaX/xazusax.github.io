@@ -3,50 +3,215 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
-  title="找不到這份檔案 — Reverie Archive"
-  description="這個頁面不存在，或已被移至其他位置。"
+  title="404 — Reverie Archive"
+  description="The requested page could not be found."
 >
   <main class="not-found-page">
     <section class="not-found-record">
       <div class="not-found-copy">
         <p class="eyebrow">ARCHIVE NOTICE · 404</p>
 
-        <h1>
-          這份檔案<br />
-          不在館內。
+        <h1 data-not-found-heading>
+          This record<br />
+          is not in the archive.
         </h1>
 
-        <p>
-          你要找的頁面可能不存在、已被移動，
-          或網址中有一個小小的錯字。
+        <p data-not-found-description>
+          The page you are looking for may not exist, may have moved,
+          or may contain a small typo in its address.
         </p>
 
         <div class="not-found-actions">
-          <a class="not-found-primary" href="/">
-            返回首頁 <span aria-hidden="true">→</span>
+          <a class="not-found-primary" href="/" data-not-found-home>
+            <span data-not-found-home-label>Return home</span>
+            <span aria-hidden="true">→</span>
           </a>
 
-          <a class="not-found-secondary" href="/projects">
-            查看專案
+          <a
+            class="not-found-secondary"
+            href="/projects"
+            data-not-found-projects
+          >
+            <span data-not-found-projects-label>View projects</span>
           </a>
         </div>
       </div>
 
-      <div class="not-found-index" aria-label="檔案索引狀態">
+      <div
+        class="not-found-index"
+        data-not-found-index
+        aria-label="Archive index status"
+      >
         <div class="not-found-index-top">
           <span>REVERIE ARCHIVE</span>
           <span>404</span>
         </div>
 
-        <div class="not-found-index-mark" aria-hidden="true">
-          <span>?</span>
+        <div class="artefact-orbit">
+          <span class="orbit-ring orbit-ring-one"></span>
+          <span class="orbit-ring orbit-ring-two"></span>
+          <span class="orbit-core">?</span>
         </div>
 
         <div class="not-found-index-bottom">
-          <span>RECORD NOT FOUND</span>
-          <span>STATUS: OFFLINE</span>
+          <span data-not-found-record-status>RECORD NOT FOUND</span>
+          <span data-not-found-online-status>STATUS: OFFLINE</span>
         </div>
       </div>
     </section>
   </main>
+
+  <script>
+    const pathname = window.location.pathname;
+
+    const locale = pathname.startsWith("/zh-hant/")
+      ? "zh-Hant"
+      : pathname.startsWith("/zh-hans/")
+        ? "zh-Hans"
+        : pathname.startsWith("/ja/")
+          ? "ja"
+          : "en";
+
+    const copy = {
+      en: {
+        htmlLang: "en",
+        title: "404 — Reverie Archive",
+        description: "The requested page could not be found.",
+        headingFirst: "This record",
+        headingSecond: "is not in the archive.",
+        body:
+          "The page you are looking for may not exist, may have moved, or may contain a small typo in its address.",
+        home: "Return home",
+        projects: "View projects",
+        homePath: "/",
+        projectsPath: "/projects",
+        indexLabel: "Archive index status",
+        recordStatus: "RECORD NOT FOUND",
+        onlineStatus: "STATUS: OFFLINE",
+      },
+
+      "zh-Hant": {
+        htmlLang: "zh-Hant",
+        title: "找不到這份檔案 — Reverie Archive",
+        description: "這個頁面不存在，或已被移至其他位置。",
+        headingFirst: "這份檔案",
+        headingSecond: "不在館內。",
+        body:
+          "你要找的頁面可能不存在、已被移動，或網址中有一個小小的錯字。",
+        home: "返回首頁",
+        projects: "查看專案",
+        homePath: "/zh-hant/",
+        projectsPath: "/zh-hant/projects",
+        indexLabel: "檔案索引狀態",
+        recordStatus: "檔案不存在",
+        onlineStatus: "狀態：離線",
+      },
+
+      "zh-Hans": {
+        htmlLang: "zh-Hans",
+        title: "找不到这份档案 — Reverie Archive",
+        description: "这个页面不存在，或已被移至其他位置。",
+        headingFirst: "这份档案",
+        headingSecond: "不在馆内。",
+        body:
+          "你要找的页面可能不存在、已被移动，或网址中有一个小小的错字。",
+        home: "返回首页",
+        projects: "查看项目",
+        homePath: "/zh-hans/",
+        projectsPath: "/zh-hans/projects",
+        indexLabel: "档案索引状态",
+        recordStatus: "档案不存在",
+        onlineStatus: "状态：离线",
+      },
+
+      ja: {
+        htmlLang: "ja",
+        title: "記録が見つかりません — Reverie Archive",
+        description: "このページは存在しないか、別の場所へ移動しました。",
+        headingFirst: "この記録は",
+        headingSecond: "アーカイブ内にありません。",
+        body:
+          "お探しのページは存在しないか、移動されたか、URL に小さな入力ミスがある可能性があります。",
+        home: "ホームに戻る",
+        projects: "プロジェクトを見る",
+        homePath: "/ja/",
+        projectsPath: "/ja/projects",
+        indexLabel: "アーカイブ索引の状態",
+        recordStatus: "記録が見つかりません",
+        onlineStatus: "状態：オフライン",
+      },
+    }[locale];
+
+    document.documentElement.lang = copy.htmlLang;
+    document.title = copy.title;
+
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", copy.description);
+
+    const heading =
+      document.querySelector<HTMLHeadingElement>(
+        "[data-not-found-heading]",
+      );
+
+    const description =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-description]",
+      );
+
+    const home =
+      document.querySelector<HTMLAnchorElement>(
+        "[data-not-found-home]",
+      );
+
+    const homeLabel =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-home-label]",
+      );
+
+    const projects =
+      document.querySelector<HTMLAnchorElement>(
+        "[data-not-found-projects]",
+      );
+
+    const projectsLabel =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-projects-label]",
+      );
+
+    const index =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-index]",
+      );
+
+    const recordStatus =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-record-status]",
+      );
+
+    const onlineStatus =
+      document.querySelector<HTMLElement>(
+        "[data-not-found-online-status]",
+      );
+
+    if (heading) {
+      heading.replaceChildren(
+        copy.headingFirst,
+        document.createElement("br"),
+        copy.headingSecond,
+      );
+    }
+
+    if (description) description.textContent = copy.body;
+
+    if (home) home.href = copy.homePath;
+    if (homeLabel) homeLabel.textContent = copy.home;
+
+    if (projects) projects.href = copy.projectsPath;
+    if (projectsLabel) projectsLabel.textContent = copy.projects;
+
+    if (index) index.setAttribute("aria-label", copy.indexLabel);
+    if (recordStatus) recordStatus.textContent = copy.recordStatus;
+    if (onlineStatus) onlineStatus.textContent = copy.onlineStatus;
+  </script>
 </BaseLayout>

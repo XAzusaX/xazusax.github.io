@@ -1,0 +1,62 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { type Locale } from "../i18n/config";
+import { authCopy } from "../i18n/auth";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = authCopy[locale].callback;
+---
+
+<BaseLayout title={copy.title} description={copy.waiting}>
+  <main class="auth-page" data-auth-page data-locale={locale}>
+    <section class="auth-panel">
+      <p class="eyebrow">ARCHIVE STUDIO</p>
+      <h1>{copy.heading}</h1>
+
+      <p class="auth-description" data-auth-message>
+        {copy.waiting}
+      </p>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    import { authCopy } from "../i18n/auth";
+    import type { Locale } from "../i18n/config";
+
+    const page =
+      document.querySelector<HTMLElement>("[data-auth-page]");
+
+    const locale =
+      (page?.dataset.locale ?? "en") as Locale;
+
+    const copy = authCopy[locale].callback;
+
+    const message =
+      document.querySelector<HTMLElement>("[data-auth-message]");
+
+    const code =
+      new URLSearchParams(window.location.search).get("code");
+
+    if (!code) {
+      if (message) {
+        message.textContent = copy.missingCode;
+      }
+    } else {
+      const { error } =
+        await supabase.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        if (message) {
+          message.textContent = copy.failed;
+        }
+      } else {
+        window.location.replace("/studio");
+      }
+    }
+  </script>
+</BaseLayout>

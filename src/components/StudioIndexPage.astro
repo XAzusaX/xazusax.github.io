@@ -1,0 +1,250 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { studioCopy } from "../i18n/studio";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = studioCopy[locale];
+
+const dateLocales: Record<Locale, string> = {
+  en: "en-US",
+  "zh-Hant": "zh-Hant",
+  "zh-Hans": "zh-Hans",
+  ja: "ja-JP",
+};
+
+const newPostPath = localizePath(locale, "/studio/new");
+const editPath = localizePath(locale, "/studio/edit");
+
+const clientCopy = {
+  dateLocale: dateLocales[locale],
+  editPath,
+  publishedOnTemplate: copy.publishedOn("__DATE__"),
+  updatedOnTemplate: copy.updatedOn("__DATE__"),
+  untitled: copy.untitled,
+  edit: copy.edit,
+  editAriaTemplate: copy.editAria("__TITLE__"),
+  noDrafts: copy.noDrafts,
+  noPublished: copy.noPublished,
+  loadError: copy.loadError,
+};
+---
+
+<BaseLayout title={copy.indexTitle} description={copy.indexDescription}>
+  <main
+    class="studio-page"
+    data-studio-page
+    data-date-locale={clientCopy.dateLocale}
+    data-edit-path={clientCopy.editPath}
+    data-published-on-template={clientCopy.publishedOnTemplate}
+    data-updated-on-template={clientCopy.updatedOnTemplate}
+    data-untitled={clientCopy.untitled}
+    data-edit-label={clientCopy.edit}
+    data-edit-aria-template={clientCopy.editAriaTemplate}
+    data-no-drafts={clientCopy.noDrafts}
+    data-no-published={clientCopy.noPublished}
+    data-load-error={clientCopy.loadError}
+    >
+    <section class="studio-hero">
+      <div>
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.heading}</h1>
+        <p>{copy.intro}</p>
+      </div>
+
+      <div class="studio-actions">
+        <a class="studio-new-post" href={newPostPath}>
+        {copy.newPost} <span aria-hidden="true">＋</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="studio-section" aria-labelledby="drafts-title">
+      <div class="studio-section-heading">
+        <p class="eyebrow">{copy.draftsEyebrow}</p>
+        <h2 id="drafts-title">{copy.draftsHeading}</h2>
+      </div>
+
+      <div class="studio-post-list" data-drafts>
+        <p class="studio-loading">{copy.loadingDrafts}</p>
+      </div>
+    </section>
+
+    <section class="studio-section" aria-labelledby="published-title">
+      <div class="studio-section-heading">
+        <p class="eyebrow">{copy.publishedEyebrow}</p>
+        <h2 id="published-title">{copy.publishedHeading}</h2>
+      </div>
+
+      <div class="studio-post-list" data-published>
+        <p class="studio-loading">{copy.loadingPosts}</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    const page =
+    document.querySelector<HTMLElement>("[data-studio-page]");
+
+    const ui = {
+    dateLocale: page?.dataset.dateLocale ?? "en-US",
+    editPath: page?.dataset.editPath ?? "/studio/edit",
+    publishedOnTemplate:
+        page?.dataset.publishedOnTemplate ?? "__DATE__",
+    updatedOnTemplate:
+        page?.dataset.updatedOnTemplate ?? "__DATE__",
+    untitled: page?.dataset.untitled ?? "",
+    edit: page?.dataset.editLabel ?? "",
+    editAriaTemplate:
+        page?.dataset.editAriaTemplate ?? "__TITLE__",
+    noDrafts: page?.dataset.noDrafts ?? "",
+    noPublished: page?.dataset.noPublished ?? "",
+    loadError: page?.dataset.loadError ?? "",
+    };
+
+    const withToken = (template: string, value: string) =>
+    template
+        .replace("__DATE__", value)
+        .replace("__TITLE__", value);
+        type Post = {
+        id: string;
+        title: string;
+        status: "draft" | "published";
+        updated_at: string;
+        published_at: string | null;
+        };
+
+    const draftsContainer =
+      document.querySelector<HTMLDivElement>("[data-drafts]");
+    const publishedContainer =
+      document.querySelector<HTMLDivElement>("[data-published]");
+    const signOutButton =
+      document.querySelector<HTMLButtonElement>("[data-sign-out]");
+
+    const formatDate = (value: string) =>
+      new Intl.DateTimeFormat(ui.dateLocale, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(value));
+
+    const createEmptyMessage = (text: string) => {
+      const message = document.createElement("p");
+      message.className = "studio-empty";
+      message.textContent = text;
+      return message;
+    };
+
+    const createPostItem = (post: Post) => {
+      const article = document.createElement("article");
+      article.className = "studio-post-item";
+
+      const meta = document.createElement("p");
+      meta.className = "studio-post-meta";
+
+      const date =
+        post.status === "published" && post.published_at
+            ? withToken(
+                ui.publishedOnTemplate,
+                formatDate(post.published_at),
+            )
+            : withToken(
+                ui.updatedOnTemplate,
+                formatDate(post.updated_at),
+            );
+
+      meta.textContent = date;
+
+      const title = document.createElement("h3");
+      const postTitle = post.title || ui.untitled;
+      title.textContent = postTitle;
+
+      const link = document.createElement("a");
+        link.href = `${ui.editPath}?id=${encodeURIComponent(post.id)}`;
+        link.textContent = `${ui.edit} →`;
+        link.setAttribute(
+        "aria-label",
+        withToken(ui.editAriaTemplate, postTitle),
+        );
+
+      article.append(meta, title, link);
+
+      return article;
+    };
+
+    const renderPosts = (
+      container: HTMLDivElement | null,
+      posts: Post[],
+      emptyMessage: string,
+    ) => {
+      if (!container) return;
+
+      container.replaceChildren();
+
+      if (posts.length === 0) {
+        container.append(createEmptyMessage(emptyMessage));
+        return;
+      }
+
+      posts.forEach((post) => {
+        container.append(createPostItem(post));
+      });
+    };
+
+    const loadStudio = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        window.location.replace("/login");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, title, status, updated_at, published_at")
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        const errorMessage = ui.loadError;
+
+        if (draftsContainer) {
+          draftsContainer.replaceChildren(createEmptyMessage(errorMessage));
+        }
+
+        if (publishedContainer) {
+          publishedContainer.replaceChildren(createEmptyMessage(errorMessage));
+        }
+
+        return;
+      }
+
+      const posts = (data ?? []) as Post[];
+
+      renderPosts(
+        draftsContainer,
+        posts.filter((post) => post.status === "draft"),
+        ui.noDrafts
+      );
+
+      renderPosts(
+        publishedContainer,
+        posts.filter((post) => post.status === "published"),
+        ui.noPublished
+      );
+    };
+
+    signOutButton?.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.replace("/login");
+    });
+
+    loadStudio();
+  </script>
+</BaseLayout>

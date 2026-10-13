@@ -1,0 +1,472 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { journalCopy } from "../i18n/journal";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = journalCopy[locale];
+const readPath = localizePath(locale, "/journal/read");
+
+const clientCopy = {
+  dateLocale: copy.dateLocale,
+  readPath,
+  loadingPosts: copy.loadingPosts,
+  readArticle: copy.readArticle,
+  readArticleAriaTemplate: copy.readArticleAria("__TITLE__"),
+  emptyFiltered: copy.emptyFiltered,
+  emptyPosts: copy.emptyPosts,
+  loadError: copy.loadError,
+  shownPostsTemplate: copy.shownPosts(0).replace("0", "__COUNT__"),
+  filteredPostsTemplate: copy.filteredPosts(0).replace("0", "__COUNT__"),
+  totalPostsTemplate: copy.totalPosts(0).replace("0", "__COUNT__"),
+  allTags: copy.allTags,
+};
+---
+
+<BaseLayout
+  title={copy.title}
+  description={copy.description}
+>
+  <main
+    class="journal-page"
+    data-journal-page
+    data-date-locale={clientCopy.dateLocale}
+    data-read-path={clientCopy.readPath}
+    data-loading-posts={clientCopy.loadingPosts}
+    data-read-article={clientCopy.readArticle}
+    data-read-article-aria-template={clientCopy.readArticleAriaTemplate}
+    data-empty-filtered={clientCopy.emptyFiltered}
+    data-empty-posts={clientCopy.emptyPosts}
+    data-load-error={clientCopy.loadError}
+    data-shown-posts-template={clientCopy.shownPostsTemplate}
+    data-filtered-posts-template={clientCopy.filteredPostsTemplate}
+    data-total-posts-template={clientCopy.totalPostsTemplate}
+    data-all-tags={clientCopy.allTags}
+    >
+    <header class="journal-hero">
+        <p class="eyebrow">{copy.heroEyebrow}</p>
+        <h1>{copy.heroTitle}</h1>
+        <p>{copy.heroIntro}</p>
+    </header>
+
+<section class="journal-controls" aria-label={copy.controlsLabel}>
+  <div class="journal-controls-toolbar">
+    <button
+      class="journal-controls-toggle"
+      type="button"
+      data-journal-controls-toggle
+      aria-expanded="false"
+      aria-controls="journal-controls-panel"
+    >
+        <span class="journal-controls-toggle-label">{copy.controlsLabel}</span>
+        <span class="journal-controls-summary" data-journal-summary>
+        {copy.loadingPosts}
+        </span>
+
+      <svg
+        class="journal-controls-arrow"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path d="m7 10 5 5 5-5" />
+      </svg>
+    </button>
+  </div>
+
+  <div
+    class="journal-controls-panel"
+    id="journal-controls-panel"
+    data-journal-controls-panel
+    hidden
+  >
+    <div class="journal-search-row">
+      <label class="journal-search" for="journal-search">
+        <span>{copy.searchTitle}</span>
+        <input
+          id="journal-search"
+          type="search"
+          placeholder={copy.searchPlaceholder}
+          autocomplete="off"
+          data-search-input
+        />
+      </label>
+
+      <button
+        class="journal-search-clear"
+        type="button"
+        data-search-clear
+        hidden
+        aria-label={copy.clearSearchAria}
+      >
+        {copy.clearSearch}
+      </button>
+    </div>
+
+    <div class="journal-filter-area">
+      <p>{copy.filterByTag}</p>
+
+      <div class="journal-tag-filters" data-tag-filters>
+        <button class="tag-filter is-active" type="button" data-tag-filter="">
+          {copy.allTags}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sr-only" data-results-count aria-live="polite"></p>
+</section>
+
+    <section class="journal-list-section" aria-labelledby="journal-list-title">
+      <div class="journal-list-heading">
+        <p class="eyebrow">{copy.publishedEyebrow}</p>
+        <h2 id="journal-list-title">{copy.publishedTitle}</h2>
+      </div>
+
+      <div class="public-post-list" data-public-posts>
+        <p class="studio-loading">{copy.loadingArticle}</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    import {
+      convertChineseText,
+      type ChineseDisplayMode,
+      type ContentLocale,
+    } from "../../lib/chinese-conversion";
+
+    type PublicPost = {
+      id: string;
+      title: string;
+      description: string;
+      slug: string;
+      tags: string[];
+      published_at: string;
+      content_locale: ContentLocale;
+    };
+
+    const page =
+    document.querySelector<HTMLElement>("[data-journal-page]");
+
+    const ui = {
+    dateLocale: page?.dataset.dateLocale ?? "en-US",
+    readPath: page?.dataset.readPath ?? "/journal/read",
+    loadingPosts: page?.dataset.loadingPosts ?? "",
+    readArticle: page?.dataset.readArticle ?? "",
+    readArticleAriaTemplate:
+        page?.dataset.readArticleAriaTemplate ?? "__TITLE__",
+    emptyFiltered: page?.dataset.emptyFiltered ?? "",
+    emptyPosts: page?.dataset.emptyPosts ?? "",
+    loadError: page?.dataset.loadError ?? "",
+    shownPostsTemplate:
+        page?.dataset.shownPostsTemplate ?? "__COUNT__",
+    filteredPostsTemplate:
+        page?.dataset.filteredPostsTemplate ?? "__COUNT__",
+    totalPostsTemplate:
+        page?.dataset.totalPostsTemplate ?? "__COUNT__",
+    allTags: page?.dataset.allTags ?? "",
+    };
+
+    const withToken = (template: string, value: string | number) =>
+    template.replace("__COUNT__", String(value)).replace("__TITLE__", String(value));
+    const container =
+      document.querySelector<HTMLDivElement>("[data-public-posts]");
+    const searchInput =
+      document.querySelector<HTMLInputElement>("[data-search-input]");
+    const tagFilters =
+      document.querySelector<HTMLDivElement>("[data-tag-filters]");
+    const resultsCount =
+      document.querySelector<HTMLParagraphElement>("[data-results-count]");
+    const controlsToggle =
+      document.querySelector<HTMLButtonElement>(
+        "[data-journal-controls-toggle]"
+      );
+
+    const controlsPanel =
+      document.querySelector<HTMLElement>(
+        "[data-journal-controls-panel]"
+      );
+
+    const controlsSummary =
+      document.querySelector<HTMLElement>("[data-journal-summary]");
+
+    const clearSearch =
+      document.querySelector<HTMLButtonElement>("[data-search-clear]");
+
+    let controlsAreOpen = false;
+    let closePanelTimer: number | undefined;
+
+    const setControlsPanel = (isOpen: boolean) => {
+      if (!controlsToggle || !controlsPanel) return;
+
+      controlsAreOpen = isOpen;
+      window.clearTimeout(closePanelTimer);
+
+      controlsToggle.setAttribute("aria-expanded", String(isOpen));
+      controlsToggle.classList.toggle("is-open", isOpen);
+
+      if (isOpen) {
+        controlsPanel.hidden = false;
+
+        window.requestAnimationFrame(() => {
+          if (controlsAreOpen) {
+            controlsPanel?.classList.add("is-open");
+          }
+        });
+
+        return;
+      }
+
+      controlsPanel.classList.remove("is-open");
+
+      closePanelTimer = window.setTimeout(() => {
+        if (!controlsAreOpen && controlsPanel) {
+          controlsPanel.hidden = true;
+        }
+      }, 540);
+    };
+
+    controlsToggle?.addEventListener("click", () => {
+      setControlsPanel(!controlsAreOpen);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && controlsAreOpen) {
+        setControlsPanel(false);
+        controlsToggle?.focus();
+      }
+
+      if (
+        event.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        event.preventDefault();
+        setControlsPanel(true);
+        searchInput?.focus();
+      }
+    });
+    const scriptPreferenceKey = "reverie-archive-chinese-script";
+
+const getDisplayMode = (
+  contentLocale: ContentLocale,
+): Exclude<ChineseDisplayMode, "original"> => {
+  try {
+    const saved = window.localStorage.getItem(scriptPreferenceKey);
+
+    if (saved === "zh-Hant" || saved === "zh-Hans") {
+      return saved;
+    }
+  } catch {
+    // 無法讀取偏好時，使用文章原始字體。
+  }
+
+  return contentLocale === "zh-Hans" ? "zh-Hans" : "zh-Hant";
+};
+
+const getDisplayText = (text: string, post: PublicPost) =>
+  convertChineseText(
+    text,
+    post.content_locale,
+    getDisplayMode(post.content_locale),
+  );
+  
+    let allPosts: PublicPost[] = [];
+    let activeTag = "";
+    let searchQuery = "";
+
+    const formatDate = (value: string) =>
+    new Intl.DateTimeFormat(ui.dateLocale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    }).format(new Date(value));
+
+    const createEmptyMessage = (text: string) => {
+      const message = document.createElement("p");
+      message.className = "studio-empty";
+      message.textContent = text;
+      return message;
+    };
+
+    const createPostCard = (post: PublicPost) => {
+      const article = document.createElement("article");
+      article.className = "public-post-card";
+
+      const meta = document.createElement("p");
+      meta.className = "public-post-meta";
+      meta.textContent = formatDate(post.published_at);
+
+      const title = document.createElement("h3");
+      title.textContent = getDisplayText(post.title, post);
+
+      const description = document.createElement("p");
+      description.className = "public-post-description";
+      description.textContent = getDisplayText(post.description, post);
+
+      const footer = document.createElement("div");
+      footer.className = "public-post-footer";
+
+      const tags = document.createElement("div");
+      tags.className = "public-post-tags";
+
+      post.tags.forEach((tag) => {
+        const tagElement = document.createElement("span");
+        tagElement.textContent = getDisplayText(tag, post);
+        tags.append(tagElement);
+      });
+
+      const link = document.createElement("a");
+        link.href = `${ui.readPath}?slug=${encodeURIComponent(post.slug)}`;
+        link.textContent = ui.readArticle;
+        link.setAttribute(
+          "aria-label",
+          withToken(ui.readArticleAriaTemplate, getDisplayText(post.title, post)),
+        );
+
+      footer.append(tags, link);
+      article.append(meta, title, description, footer);
+
+      return article;
+    };
+
+    const getFilteredPosts = () =>
+      allPosts.filter((post) => {
+        const normalizedQuery = searchQuery.toLocaleLowerCase();
+
+        const titleMatches =
+          post.title.toLocaleLowerCase().includes(normalizedQuery) ||
+          getDisplayText(post.title, post)
+            .toLocaleLowerCase()
+            .includes(normalizedQuery);
+        const tagMatches =
+          !activeTag || post.tags.some((tag) => tag === activeTag);
+
+        return titleMatches && tagMatches;
+      });
+
+    const renderPosts = () => {
+      if (!container) return;
+
+      const posts = getFilteredPosts();
+
+      container.replaceChildren();
+
+      if (posts.length === 0) {
+        const hasFilter = Boolean(searchQuery || activeTag);
+
+        container.append(
+          createEmptyMessage(
+            hasFilter ? ui.emptyFiltered : ui.emptyPosts
+          )
+        );
+      } else {
+        posts.forEach((post) => container.append(createPostCard(post)));
+      }
+
+      if (resultsCount) {
+        resultsCount.textContent = withToken(
+        ui.shownPostsTemplate,
+        posts.length,
+        );
+      }
+
+      if (controlsSummary) {
+        controlsSummary.textContent =
+        searchQuery || activeTag
+            ? withToken(ui.filteredPostsTemplate, posts.length)
+            : withToken(ui.totalPostsTemplate, posts.length);
+      }
+
+      controlsToggle?.classList.toggle(
+        "has-active-filters",
+        Boolean(searchQuery || activeTag)
+      );
+
+      clearSearch?.toggleAttribute("hidden", !searchQuery);
+    };
+
+    const setActiveTag = (tag: string) => {
+      activeTag = tag;
+
+      tagFilters?.querySelectorAll<HTMLButtonElement>("[data-tag-filter]").forEach(
+        (button) => {
+          button.classList.toggle("is-active", button.dataset.tagFilter === tag);
+        }
+      );
+
+      renderPosts();
+    };
+
+    const createTagButton = (tag: string) => {
+      const button = document.createElement("button");
+      button.className = "tag-filter";
+      button.type = "button";
+      button.dataset.tagFilter = tag;
+      button.textContent = tag || ui.allTags;
+
+      if (tag === activeTag) {
+        button.classList.add("is-active");
+      }
+
+      button.addEventListener("click", () => setActiveTag(tag));
+      return button;
+    };
+
+    const renderTagFilters = () => {
+      if (!tagFilters) return;
+
+      const tags = [
+        ...new Set(allPosts.flatMap((post) => post.tags).filter(Boolean)),
+      ].sort((a, b) => a.localeCompare(b, ui.dateLocale));
+
+      tagFilters.replaceChildren(createTagButton(""));
+
+      tags.forEach((tag) => {
+        tagFilters.append(createTagButton(tag));
+      });
+    };
+
+    const loadPosts = async () => {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, title, description, slug, tags, published_at, content_locale",)
+        .eq("status", "published")
+        .not("published_at", "is", null)
+        .order("published_at", { ascending: false });
+
+      if (error) {
+        container?.replaceChildren(
+          createEmptyMessage(ui.loadError)
+        );
+        return;
+      }
+
+      allPosts = (data ?? []) as PublicPost[];
+      renderTagFilters();
+      renderPosts();
+    };
+
+    searchInput?.addEventListener("input", () => {
+      searchQuery = searchInput.value.trim();
+      renderPosts();
+    });
+
+    clearSearch?.addEventListener("click", () => {
+      if (!searchInput) return;
+
+      searchInput.value = "";
+      searchQuery = "";
+      renderPosts();
+      searchInput.focus();
+    });
+
+    loadPosts();
+  </script>
+</BaseLayout>

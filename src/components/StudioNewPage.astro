@@ -1,0 +1,365 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { studioCopy } from "../i18n/studio";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = studioCopy[locale];
+
+const studioPath = localizePath(locale, "/studio");
+
+const clientCopy = {
+  studioPath,
+  emptyPreview: copy.emptyPreview,
+  invalidSlug: copy.invalidSlug,
+  invalidLocale: copy.invalidLocale,
+  requiredFields: copy.requiredFields,
+  savingDraft: copy.savingDraft,
+  publishing: copy.publishing,
+  draftSaved: copy.draftSaved,
+  postPublished: copy.postPublished,
+  duplicateSlug: copy.duplicateSlug,
+  saveErrorTemplate: copy.saveError("__MESSAGE__"),
+};
+---
+
+<BaseLayout title={copy.newTitle} description={copy.newDescription}>
+  <main
+    class="editor-page"
+    data-studio-new-page
+    data-studio-path={clientCopy.studioPath}
+    data-empty-preview={clientCopy.emptyPreview}
+    data-invalid-slug={clientCopy.invalidSlug}
+    data-invalid-locale={clientCopy.invalidLocale}
+    data-required-fields={clientCopy.requiredFields}
+    data-saving-draft={clientCopy.savingDraft}
+    data-publishing={clientCopy.publishing}
+    data-draft-saved={clientCopy.draftSaved}
+    data-post-published={clientCopy.postPublished}
+    data-duplicate-slug={clientCopy.duplicateSlug}
+    data-save-error-template={clientCopy.saveErrorTemplate}
+    >
+    <header class="editor-header">
+      <div>
+        <a class="editor-back" href={studioPath}>{copy.backToStudio}</a>
+        <p class="eyebrow">{copy.newEyebrow}</p>
+        <h1>{copy.newHeading}</h1>
+      </div>
+
+      <p class="editor-status" data-editor-status>{copy.draftNotCreated}</p>
+    </header>
+
+    <form class="post-editor" data-post-form>
+      <section class="editor-section">
+        <label for="title">{copy.titleLabel}</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder={copy.titlePlaceholder}
+          maxlength="160"
+          required
+        />
+      </section>
+
+      <section class="editor-section">
+        <label for="description">{copy.descriptionLabel}</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="3"
+          maxlength="300"
+          placeholder={copy.descriptionPlaceholder}
+          required
+        ></textarea>
+      </section>
+
+      <section class="editor-grid">
+        <div class="editor-section">
+          <label for="slug">{copy.slugLabel}</label>
+          <input
+            id="slug"
+            name="slug"
+            type="text"
+            placeholder={copy.slugPlaceholder}
+            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+            required
+          />
+          <p class="editor-hint">{copy.slugHint}</p>
+        </div>
+
+        <div class="editor-section">
+          <label for="tags">{copy.tagsLabel}</label>
+          <input
+            id="tags"
+            name="tags"
+            type="text"
+            placeholder={copy.tagsPlaceholder}
+          />
+          <p class="editor-hint">{copy.tagsHint}</p>
+        </div>
+
+        <section class="editor-section">
+            <label for="content-locale">{copy.contentLocaleLabel}</label>
+
+            <select id="content-locale" name="content_locale" required>
+                <option value="zh-Hant">{copy.languageTraditional}</option>
+                <option value="zh-Hans">{copy.languageSimplified}</option>
+                <option value="en">{copy.languageEnglish}</option>
+                <option value="ja">{copy.languageJapanese}</option>
+            </select>
+
+            <p class="editor-hint">{copy.contentLocaleHint}</p>
+        </section>
+      </section>
+
+      <section class="editor-section">
+      <div class="editor-content-heading">
+        <label for="content">{copy.contentLabel}</label>
+
+        <div
+        class="editor-mode-switch"
+        role="tablist"
+        aria-label={copy.editorModeLabel}
+        >
+          <button
+            class="editor-mode-button is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-editor-mode="write"
+          >
+            {copy.write}
+          </button>
+
+          <button
+            class="editor-mode-button"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-editor-mode="preview"
+          >
+            {copy.preview}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        class="editor-content"
+        id="content"
+        name="content"
+        rows="18"
+        placeholder={copy.contentPlaceholder}
+        data-markdown-input
+        required
+      ></textarea>
+
+      <div class="editor-preview" data-markdown-preview hidden></div>
+
+      <p class="editor-hint">{copy.markdownHint}</p>
+    </section>
+
+      <div class="editor-actions">
+        <p class="editor-message" data-editor-message aria-live="polite"></p>
+
+        <div>
+          <button class="editor-save" type="submit" value="draft">
+            {copy.saveDraft}
+          </button>
+
+          <button class="editor-publish" type="submit" value="published">
+            {copy.publish} <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    import { renderMarkdown } from "../../lib/markdown";
+    const page =
+        document.querySelector<HTMLElement>("[data-studio-new-page]");
+
+    const ui = {
+        studioPath: page?.dataset.studioPath ?? "/studio",
+        emptyPreview: page?.dataset.emptyPreview ?? "",
+        invalidSlug: page?.dataset.invalidSlug ?? "",
+        invalidLocale: page?.dataset.invalidLocale ?? "",
+        requiredFields: page?.dataset.requiredFields ?? "",
+        savingDraft: page?.dataset.savingDraft ?? "",
+        publishing: page?.dataset.publishing ?? "",
+        draftSaved: page?.dataset.draftSaved ?? "",
+        postPublished: page?.dataset.postPublished ?? "",
+        duplicateSlug: page?.dataset.duplicateSlug ?? "",
+        saveErrorTemplate:
+            page?.dataset.saveErrorTemplate ?? "__MESSAGE__",
+        };
+
+    const withMessage = (template: string, value: string) =>
+        template.replace("__MESSAGE__", value);
+    const form = document.querySelector<HTMLFormElement>("[data-post-form]");
+    const message =
+      document.querySelector<HTMLParagraphElement>("[data-editor-message]");
+    const status =
+      document.querySelector<HTMLParagraphElement>("[data-editor-status]");
+    const buttons = form?.querySelectorAll<HTMLButtonElement>(
+      'button[type="submit"]',
+    );
+    const markdownInput =
+      document.querySelector<HTMLTextAreaElement>("[data-markdown-input]");
+    const markdownPreview =
+      document.querySelector<HTMLDivElement>("[data-markdown-preview]");
+    const modeButtons =
+      document.querySelectorAll<HTMLButtonElement>("[data-editor-mode]");
+
+    const setEditorMode = (mode: "write" | "preview") => {
+      const isPreview = mode === "preview";
+
+      if (markdownInput) markdownInput.hidden = isPreview;
+
+      if (markdownPreview) {
+        markdownPreview.hidden = !isPreview;
+
+        if (isPreview) {
+          markdownPreview.innerHTML = renderMarkdown(
+            markdownInput?.value || ui.emptyPreview
+          );
+        }
+      }
+
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.editorMode === mode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+    };
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.editorMode;
+
+        if (mode === "write" || mode === "preview") {
+          setEditorMode(mode);
+        }
+      });
+    });
+
+    const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+    const contentLocales = ["zh-Hant", "zh-Hans", "en", "ja"] as const;
+
+    type ContentLocale = (typeof contentLocales)[number];
+
+    const isContentLocale = (value: string): value is ContentLocale =>
+      contentLocales.includes(value as ContentLocale);
+    const ensureSignedIn = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        window.location.replace("/login");
+      }
+    };
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+        const submitter = event.submitter as HTMLButtonElement | null;
+        const action = submitter?.value === "published" ? "published" : "draft";
+        const formData = new FormData(form);
+
+        const title = String(formData.get("title") || "").trim();
+        const description = String(formData.get("description") || "").trim();
+        const slug = String(formData.get("slug") || "")
+            .trim()
+            .toLowerCase();
+        const content = String(formData.get("content") || "").trim();
+
+        const contentLocale = String(
+        formData.get("content_locale") || "zh-Hant"
+        );
+
+        const tags = String(formData.get("tags") || "")
+        .split(/[,，]/)
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
+        if (!slugPattern.test(slug)) {
+        if (message) {
+            message.textContent = ui.invalidSlug;
+        }
+
+        return;
+        }
+
+        if (!isContentLocale(contentLocale)) {
+        if (message) {
+            message.textContent = ui.invalidLocale;
+        }
+
+        return;
+        }
+      if (!title || !description || !content) {
+        if (message) {
+          message.textContent = ui.requiredFields;
+        }
+
+        return;
+      }
+
+      buttons?.forEach((button) => {
+        button.disabled = true;
+      });
+
+      if (message) {
+        message.textContent =
+            action === "published"
+                ? ui.publishing
+                : ui.savingDraft;
+      }
+
+      const { error } = await supabase.from("posts").insert({
+        title,
+        description,
+        slug,
+        content,
+        content_locale: contentLocale,
+        tags,
+        status: action,
+        published_at: action === "published" ? new Date().toISOString() : null,
+      });
+
+      if (error) {
+        if (error.code === "23505") {
+          if (message) {
+           message.textContent = ui.duplicateSlug;
+          }
+        } else if (message) {
+          message.textContent = withMessage(ui.saveErrorTemplate, error.message);
+        }
+
+        buttons?.forEach((button) => {
+          button.disabled = false;
+        });
+
+        return;
+      }
+
+      if (status) {
+        status.textContent =
+            action === "published"
+                ? ui.postPublished
+                : ui.draftSaved;
+      }
+
+      window.location.assign(ui.studioPath);
+    });
+
+    ensureSignedIn();
+  </script>
+</BaseLayout>

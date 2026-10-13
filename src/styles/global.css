@@ -4801,3 +4801,584 @@ body.menu-is-open {
     justify-self: center;
   }
 }
+
+/* 全站超連結：取消預設底線 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 保留可辨識的互動與鍵盤焦點 */
+a:hover {
+  color: var(--blue);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 0.2rem;
+}
+
+/* 隱藏瀏覽器主頁面的 scrollbar，但仍可正常滑動 */
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 搜尋結果屬於控制面板內容，不覆蓋下面的週期／族／區塊 */
+.element-search-results {
+  position: static;
+  max-height: 18rem;
+  margin-top: 0.6rem;
+  border-radius: 0.45rem;
+}
+
+/*
+  有搜尋結果時，控制面板需要容納結果清單與下方篩選；
+  保留原本展開動畫，只增加可用高度。
+*/
+.elements-controls-panel.is-open:has(
+  .element-search-results:not([hidden])
+) {
+  max-height: 64rem;
+}
+
+.reading-script-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--blue-200);
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.reading-script-toggle > span {
+  padding: 0 0.45rem;
+  color: var(--gray-500);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.reading-script-toggle button {
+  min-width: 2.25rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--gray-600);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.reading-script-toggle button.is-active {
+  background: var(--blue);
+  color: #ffffff;
+}
+
+.reading-script-toggle button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.header-tools {
+  display: flex;
+  align-items: stretch;
+  margin-left: auto;
+}
+
+.header-language {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-right: 1px solid rgba(64, 104, 159, 0.22);
+}
+
+.language-menu {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.language-menu summary {
+  list-style: none;
+}
+
+.language-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.language-trigger {
+  display: inline-flex;
+  min-width: 4.2rem;
+  min-height: var(--site-header-height, 5.8rem);
+  padding: 0 0.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--blue-700, #154d8c);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.language-trigger:hover,
+.language-menu[open] .language-trigger {
+  background: rgba(233, 242, 255, 0.78);
+}
+
+.language-trigger span:last-child {
+  font-size: 0.8rem;
+  transition: transform 180ms ease;
+}
+
+.language-menu[open] .language-trigger span:last-child {
+  transform: rotate(180deg);
+}
+
+.language-dropdown {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  display: grid;
+  width: 10.5rem;
+  padding: 0.4rem;
+  border: 1px solid rgba(64, 104, 159, 0.22);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1rem 2.5rem rgba(22, 45, 74, 0.14);
+}
+
+.language-dropdown a {
+  display: flex;
+  min-height: 2.45rem;
+  padding: 0 0.7rem;
+  align-items: center;
+  border-radius: 0.45rem;
+  color: var(--gray-700, #334155);
+  font-size: 0.86rem;
+  text-decoration: none;
+}
+
+.language-dropdown a:hover {
+  background: #edf4fc;
+  color: var(--blue-700, #154d8c);
+}
+
+.language-dropdown a[aria-current="true"] {
+  background: var(--blue, #2b6fe8);
+  color: #fff;
+  font-weight: 700;
+}
+
+.language-trigger:focus-visible,
+.language-dropdown a:focus-visible {
+  outline: 2px solid var(--blue, #2b6fe8);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .language-trigger {
+    min-width: 3.4rem;
+    min-height: var(--site-header-height);
+    padding: 0 0.6rem;
+    font-size: 0.72rem;
+  }
+
+  .language-dropdown {
+    width: min(10.5rem, calc(100vw - 1.5rem));
+  }
+}
+
+.header-tools {
+  display: flex;
+  width: auto;
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.header-language {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  margin-left: 0;
+  border-right: 1px solid rgba(64, 104, 159, 0.22);
+}
+
+.header-account {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  margin-left: 0;
+}
+
+/* 語言欄位：成為帳戶頭像左側的獨立 Header tab */
+.header-language {
+  align-self: stretch;
+  border-left: 1px solid rgba(64, 104, 159, 0.22);
+  border-right: 1px solid rgba(64, 104, 159, 0.22);
+}
+
+.language-menu {
+  height: 100%;
+}
+
+.language-trigger {
+  box-sizing: border-box;
+}
+
+/* 和帳戶選單一樣：打開時有頂部藍線與淡藍底 */
+.language-menu[open] .language-trigger {
+  background: rgba(233, 242, 255, 0.78);
+  box-shadow: inset 0 3px 0 var(--blue, #2b6fe8);
+}
+
+/* 語言下拉：對齊原本帳戶選單的直角列表風格 */
+.language-dropdown {
+  top: 100%;
+  right: 0;
+  width: 11rem;
+  padding: 0;
+  border: 1px solid rgba(64, 104, 159, 0.22);
+  border-top: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 0 1rem 2.5rem rgba(22, 45, 74, 0.14);
+}
+
+.language-dropdown a {
+  display: flex;
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  align-items: center;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(64, 104, 159, 0.14);
+  background: transparent;
+  color: var(--gray-700, #334155);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.language-dropdown a:last-child {
+  border-bottom: 0;
+}
+
+.language-dropdown a:hover {
+  background: rgba(237, 244, 252, 0.75);
+  color: var(--blue-700, #154d8c);
+}
+
+/* 目前語言：用左側藍線與淡底，不用圓角藍色按鈕 */
+.language-dropdown a[aria-current="true"] {
+  box-shadow: inset 3px 0 0 var(--blue, #2b6fe8);
+  background: rgba(237, 244, 252, 0.75);
+  color: var(--blue-700, #154d8c);
+  font-weight: 800;
+}
+
+.language-trigger {
+  min-width: 5.35rem;
+  gap: 0.65rem;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.language-code {
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  /* 手機 Header：只留下必要控制項 */
+  .site-header {
+    min-height: var(--site-header-height);
+    padding-left: 0.4rem;
+  }
+
+  .header-brand {
+    min-width: 0;
+    gap: 0;
+  }
+
+  .menu-toggle {
+    width: 3.8rem;
+    min-height: var(--site-header-height);
+    flex: 0 0 3.8rem;
+  }
+
+  .wordmark {
+    min-width: 3.7rem;
+    padding: 0 0.65rem;
+    justify-content: center;
+  }
+
+  /* 窄螢幕用 Logo 圖章識別網站，不硬塞文字 */
+  .wordmark-copy {
+    display: none;
+  }
+
+  .wordmark-mark {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  .header-tools {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .header-language {
+    flex: 0 0 auto;
+  }
+
+  .language-trigger {
+    min-width: 4.15rem;
+    min-height: var(--site-header-height);
+    padding: 0 0.6rem;
+    gap: 0.48rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+  }
+
+  .language-caret {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-width: 1.8px;
+  }
+
+  .account-trigger {
+    min-width: 4.45rem;
+    min-height: var(--site-header-height);
+    padding: 0 0.7rem;
+    justify-content: center;
+  }
+
+  .account-avatar {
+    width: 2.45rem;
+    height: 2.45rem;
+  }
+
+  .language-dropdown {
+    width: min(11.5rem, calc(100vw - 1rem));
+  }
+}
+
+.language-caret {
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 0;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(0deg);
+  transition: transform 180ms ease;
+}
+
+.language-menu[open] .language-caret {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 640px) {
+  .language-caret {
+    width: 0.82rem;
+    height: 0.82rem;
+    border: 0;
+  }
+}
+
+.language-dropdown {
+  transform: translateY(-0.45rem);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: top right;
+  transition:
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.language-menu[open] .language-dropdown {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* JS 延遲移除 open，讓收起動畫可播放 */
+.language-menu.is-closing .language-dropdown {
+  transform: translateY(-0.3rem);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.not-found-index-mark {
+  position: relative;
+  display: grid;
+  width: 13rem;
+  aspect-ratio: 1;
+  margin: auto;
+  place-items: center;
+}
+
+.not-found-orbit {
+  position: absolute;
+  width: 78%;
+  height: 34%;
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 50%;
+}
+
+.not-found-orbit-one {
+  transform: rotate(0deg);
+  animation: not-found-orbit-one 13s linear infinite;
+}
+
+.not-found-orbit-two {
+  transform: rotate(60deg);
+  animation: not-found-orbit-two 17s linear infinite reverse;
+}
+
+.not-found-orbit-three {
+  transform: rotate(120deg);
+  animation: not-found-orbit-three 21s linear infinite;
+}
+
+.not-found-index-core {
+  display: grid;
+  width: 5.4rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--blue, #2b6fe8);
+  font-size: 3.3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@keyframes not-found-orbit-one {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes not-found-orbit-two {
+  to {
+    transform: rotate(420deg);
+  }
+}
+
+@keyframes not-found-orbit-three {
+  to {
+    transform: rotate(480deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-orbit {
+    animation: none;
+  }
+}
+
+@media (min-width: 641px) {
+  .reading-page {
+    width: min(100% - 4rem, 900px);
+    padding: 4rem 0 6rem;
+  }
+
+  .reading-back {
+    margin-bottom: 2.5rem;
+  }
+
+  .reading-header {
+    padding-bottom: 2.25rem;
+  }
+
+  .reading-content {
+    padding-top: 2.25rem;
+  }
+
+  .reading-content > :first-child {
+    margin-top: 0;
+  }
+}
+
+.about-grid {
+  align-items: stretch;
+}
+
+.about-card {
+  display: flex;
+  min-height: 21.25rem;
+  flex-direction: column;
+}
+
+.about-card-number {
+  margin: 0;
+}
+
+.about-card h2 {
+  margin-top: 4.25rem;
+}
+
+.about-card > p:not(.about-card-number) {
+  margin-top: 1.15rem;
+}
+
+.about-card a {
+  margin-top: auto;
+}
+
+.about-card-note {
+  display: flex;
+  min-height: 21.25rem;
+  flex-direction: column;
+  align-content: initial;
+  justify-content: flex-start;
+}
+
+@media (max-width: 760px) {
+  .about-card,
+  .about-card-note {
+    min-height: auto;
+  }
+
+  .about-card h2 {
+    margin-top: 2.5rem;
+  }
+
+  .about-card a {
+    margin-top: 2rem;
+  }
+}
+
+.about-hero h1 {
+  max-width: 14ch;
+  font-size: clamp(3.6rem, 5.4vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.about-hero > p:last-child {
+  max-width: 46rem;
+}
+
+@media (max-width: 760px) {
+  .about-hero h1 {
+    max-width: 11ch;
+    font-size: clamp(3rem, 13vw, 4.35rem);
+    line-height: 1.02;
+  }
+}

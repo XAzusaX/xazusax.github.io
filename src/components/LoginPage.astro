@@ -1,0 +1,202 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { type Locale } from "../i18n/config";
+import { authCopy } from "../i18n/auth";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = authCopy[locale].login;
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <main class="studio-login-page" data-login-page data-locale={locale}>
+    <section class="studio-login">
+      <div class="studio-login-intro">
+        <p class="eyebrow">{copy.introEyebrow}</p>
+
+        <h1>
+          {copy.headingFirst}<br />
+          {copy.headingSecond}
+        </h1>
+
+        <p>{copy.intro}</p>
+
+        <div
+          class="studio-login-record"
+          aria-label={`${copy.statusLabel}: ${copy.statusValue}`}
+        >
+          <span>{copy.statusLabel}</span>
+          <strong>{copy.statusValue}</strong>
+        </div>
+      </div>
+
+      <div class="studio-login-form-area">
+        <p class="eyebrow">{copy.formEyebrow}</p>
+        <h2>{copy.formTitle}</h2>
+
+        <form class="studio-form" data-login-form novalidate>
+          <div class="form-field">
+            <label for="email">{copy.emailLabel}</label>
+
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder={copy.emailPlaceholder}
+              required
+              aria-describedby="email-error"
+            />
+
+            <p
+              class="field-message"
+              id="email-error"
+              data-email-error
+              aria-live="polite"
+              hidden
+            ></p>
+          </div>
+
+          <div class="form-field">
+            <label for="password">{copy.passwordLabel}</label>
+
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder={copy.passwordPlaceholder}
+              required
+              aria-describedby="password-error"
+            />
+
+            <p
+              class="field-message"
+              id="password-error"
+              data-password-error
+              aria-live="polite"
+              hidden
+            ></p>
+          </div>
+
+          <button type="submit">
+            {copy.submit} <span>→</span>
+          </button>
+
+          <p class="form-message" data-form-message aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    import { supabase } from "../../lib/supabase";
+    import { authCopy } from "../i18n/auth";
+    import type { Locale } from "../i18n/config";
+
+    const page =
+      document.querySelector<HTMLElement>("[data-login-page]");
+
+    const locale =
+      (page?.dataset.locale ?? "en") as Locale;
+
+    const copy = authCopy[locale].login;
+
+    const form =
+      document.querySelector<HTMLFormElement>("[data-login-form]");
+
+    const message =
+      document.querySelector<HTMLParagraphElement>("[data-form-message]");
+
+    const button = form?.querySelector<HTMLButtonElement>("button");
+
+    const emailInput =
+      document.querySelector<HTMLInputElement>("#email");
+
+    const passwordInput =
+      document.querySelector<HTMLInputElement>("#password");
+
+    const emailError =
+      document.querySelector<HTMLParagraphElement>("[data-email-error]");
+
+    const passwordError =
+      document.querySelector<HTMLParagraphElement>(
+        "[data-password-error]",
+      );
+
+    const setFieldError = (
+      input: HTMLInputElement | null,
+      error: HTMLParagraphElement | null,
+      text: string,
+    ) => {
+      if (!input || !error) return;
+
+      input.setAttribute("aria-invalid", String(Boolean(text)));
+      error.textContent = text;
+      error.hidden = !text;
+    };
+
+    const resetButton = () => {
+      if (!button) return;
+
+      button.disabled = false;
+      button.innerHTML = `${copy.submit} <span>→</span>`;
+    };
+
+    emailInput?.addEventListener("input", () => {
+      setFieldError(emailInput, emailError, "");
+    });
+
+    passwordInput?.addEventListener("input", () => {
+      setFieldError(passwordInput, passwordError, "");
+    });
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const email = emailInput?.value.trim() ?? "";
+      const password = passwordInput?.value ?? "";
+
+      setFieldError(emailInput, emailError, "");
+      setFieldError(passwordInput, passwordError, "");
+
+      if (message) message.textContent = "";
+
+      let hasError = false;
+
+      if (!email) {
+        setFieldError(emailInput, emailError, copy.emailRequired);
+        hasError = true;
+      } else if (emailInput?.validity.typeMismatch) {
+        setFieldError(emailInput, emailError, copy.emailInvalid);
+        hasError = true;
+      }
+
+      if (!password) {
+        setFieldError(passwordInput, passwordError, copy.passwordRequired);
+        hasError = true;
+      }
+
+      if (hasError || !button) return;
+
+      button.disabled = true;
+      button.textContent = copy.verifying;
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (message) message.textContent = copy.failed;
+        resetButton();
+        return;
+      }
+
+      window.location.assign("/studio");
+    });
+  </script>
+</BaseLayout>

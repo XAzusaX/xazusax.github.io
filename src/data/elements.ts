@@ -1,7 +1,12 @@
 import sourceData from "../data/periodic-table-source.json";
+import {
+  japaneseElementNames,
+  simplifiedChineseElementNames,
+} from "./element-names";
 
 type SourceElement = {
   name: string;
+  
   symbol: string;
   number: number;
   atomic_mass: number | null;
@@ -33,6 +38,8 @@ export type Element = {
   symbol: string;
   name: string;
   nameZh: string;
+  nameZhHans: string;
+  nameJa: string;
   atomicMass: number | null;
   category: string;
   categoryZh: string;
@@ -222,6 +229,11 @@ export const elements: Element[] = rawData.elements
     symbol: element.symbol,
     name: element.name,
     nameZh: chineseNames[element.symbol] ?? element.name,
+    nameZhHans:
+      simplifiedChineseElementNames[element.symbol] ??
+      chineseNames[element.symbol] ??
+      element.name,
+    nameJa: japaneseElementNames[element.symbol] ?? element.name,
     atomicMass: element.atomic_mass,
     category: normalizeCategory(element.category),
     categoryZh:

@@ -1,0 +1,305 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { journalCopy } from "../i18n/journal";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = journalCopy[locale];
+const journalPath = localizePath(locale, "/journal");
+---
+
+<BaseLayout
+  title={copy.articleTitle}
+  description={copy.articleDescription}
+>
+  <main
+    class="reading-page"
+    data-reading-page
+    data-locale={locale}
+  >
+    <a class="reading-back" href={journalPath}>
+      {copy.backToJournal}
+    </a>
+
+    <article class="reading-article" data-reading-article hidden>
+      <header class="reading-header">
+        <p class="reading-date" data-post-date></p>
+        <h1 data-post-title></h1>
+        <p class="reading-description" data-post-description></p>
+        <div class="reading-tags" data-post-tags></div>
+        <div
+          class="reading-script-toggle"
+          data-script-toggle
+          role="group"
+          aria-label={copy.scriptLabel}
+          hidden
+        >
+          <span>{copy.scriptLabel}</span>
+
+          <button
+            type="button"
+            data-script-mode="zh-Hant"
+            aria-label={copy.traditionalAria}
+          >
+            {copy.traditional}
+          </button>
+
+          <button
+            type="button"
+            data-script-mode="zh-Hans"
+            aria-label={copy.simplifiedAria}
+          >
+            {copy.simplified}
+          </button>
+        </div>
+      </header>
+
+      <div class="reading-content" data-post-content></div>
+    </article>
+
+    <p class="studio-loading" data-reading-status>{copy.loadingArticle}</p>
+  </main>
+
+  <script>
+    import { renderMarkdown } from "../../lib/markdown";
+    import { supabase } from "../../lib/supabase";
+    import { journalCopy } from "../i18n/journal";
+    import type { Locale } from "../i18n/config";
+    import {
+      convertChineseText,
+      supportsChineseConversion,
+      type ChineseDisplayMode,
+      type ContentLocale,
+    } from "../../lib/chinese-conversion";
+    
+
+    type PublicPost = {
+      title: string;
+      description: string;
+      content: string;
+      tags: string[];
+      published_at: string;
+      content_locale: ContentLocale;
+    };
+
+    const slug = new URLSearchParams(window.location.search).get("slug");
+    const page =
+        document.querySelector<HTMLElement>("[data-reading-page]");
+
+    const locale =
+        (page?.dataset.locale ?? "en") as Locale;
+
+    const copy = journalCopy[locale];
+
+    const article =
+      document.querySelector<HTMLElement>("[data-reading-article]");
+    const status =
+      document.querySelector<HTMLParagraphElement>("[data-reading-status]");
+    const title = document.querySelector<HTMLHeadingElement>("[data-post-title]");
+    const date =
+      document.querySelector<HTMLParagraphElement>("[data-post-date]");
+    const description = document.querySelector<HTMLParagraphElement>(
+      "[data-post-description]"
+    );
+    const tags =
+      document.querySelector<HTMLDivElement>("[data-post-tags]");
+    const content =
+      document.querySelector<HTMLDivElement>("[data-post-content]");
+
+    const formatDate = (value: string) =>
+        new Intl.DateTimeFormat(copy.dateLocale, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }).format(new Date(value));
+        
+    const showError = (text: string) => {
+      if (status) status.textContent = text;
+    };
+
+    const convertPostText = (text: string) => {
+  const post = currentPost;
+
+  if (!post) return text;
+
+  return text
+    .split(/(```[\s\S]*?```|`[^`\r\n]*`)/g)
+    .map((part, index) =>
+      index % 2 === 1
+        ? part
+        : convertChineseText(
+            part,
+            post.content_locale,
+            displayMode,
+          ),
+    )
+    .join("");
+};
+
+const renderContent = (text: string) => {
+  if (!content) return;
+
+  const displayText = convertPostText(text);
+
+  content.innerHTML = renderMarkdown(displayText);
+
+  displayText
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .forEach((paragraph) => {
+      const element = document.createElement("p");
+      element.textContent = paragraph;
+      content.append(element);
+    });
+};
+
+const scriptToggle =
+  document.querySelector<HTMLElement>("[data-script-toggle]");
+
+const scriptButtons =
+  document.querySelectorAll<HTMLButtonElement>("[data-script-mode]");
+
+let currentPost: PublicPost | null = null;
+
+let displayMode: Exclude<ChineseDisplayMode, "original"> =
+  "zh-Hant";
+
+const scriptPreferenceKey =
+  "reverie-archive-chinese-script";
+
+const getSavedDisplayMode = () => {
+  try {
+    const saved = window.localStorage.getItem(scriptPreferenceKey);
+
+    return saved === "zh-Hant" || saved === "zh-Hans"
+      ? saved
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveDisplayMode = (
+  mode: Exclude<ChineseDisplayMode, "original">,
+) => {
+  try {
+    window.localStorage.setItem(scriptPreferenceKey, mode);
+  } catch {
+    // 無法使用 localStorage 時，當前頁面仍可正常切換。
+  }
+};
+    const renderPost = () => {
+  const post = currentPost;
+
+  if (!post) return;
+
+  const displayTitle = convertChineseText(
+    post.title,
+    post.content_locale,
+    displayMode,
+  );
+
+  const displayDescription = convertChineseText(
+    post.description,
+    post.content_locale,
+    displayMode,
+  );
+
+  document.title = `${displayTitle} — Archive`;
+
+  if (title) title.textContent = displayTitle;
+  if (date) date.textContent = formatDate(post.published_at);
+
+  if (description) {
+    description.textContent = displayDescription;
+  }
+
+  tags?.replaceChildren();
+
+  post.tags.forEach((tag) => {
+    const tagElement = document.createElement("span");
+
+    tagElement.textContent = convertChineseText(
+      tag,
+      post.content_locale,
+      displayMode,
+    );
+
+    tags?.append(tagElement);
+  });
+
+  renderContent(post.content);
+
+  scriptButtons.forEach((button) => {
+    const mode = button.dataset.scriptMode;
+
+    const isActive = mode === displayMode;
+
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+};
+
+scriptButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const mode = button.dataset.scriptMode;
+
+    if (mode !== "zh-Hant" && mode !== "zh-Hans") return;
+    if (!currentPost) return;
+
+    displayMode = mode;
+    saveDisplayMode(mode);
+    renderPost();
+  });
+});
+
+    const loadPost = async () => {
+      if (!slug) {
+        showError(copy.missingSlug);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select(  "title, description, content, tags, published_at, content_locale",)
+        .eq("slug", slug)
+        .eq("status", "published")
+        .single();
+
+      if (error || !data) {
+        showError(copy.articleNotFound);
+        return;
+      }
+
+      const post = data as PublicPost;
+
+      currentPost = post;
+
+      if (supportsChineseConversion(post.content_locale)) {
+        const savedMode = getSavedDisplayMode();
+
+        displayMode =
+          savedMode ??
+          (post.content_locale === "zh-Hans"
+            ? "zh-Hans"
+            : "zh-Hant");
+
+        scriptToggle?.removeAttribute("hidden");
+      } else {
+        scriptToggle?.setAttribute("hidden", "");
+      }
+
+      renderPost();
+
+      article?.removeAttribute("hidden");
+      status?.remove();
+    };
+
+    loadPost();
+  </script>
+</BaseLayout>

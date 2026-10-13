@@ -1,17 +1,41 @@
 ---
 import { siteIdentity } from "../config/site";
+import {
+  getLocaleFromPath,
+  locales,
+  localizePath,
+  removeLocaleFromPath,
+  type Locale,
+} from "../i18n/config";
+import { headerCopy } from "../i18n/header";
+
+const locale = getLocaleFromPath(Astro.url.pathname);
+const copy = headerCopy[locale];
+
+const canonicalPath = removeLocaleFromPath(Astro.url.pathname);
+
+const languageCodes: Record<Locale, string> = {
+  en: "EN",
+  "zh-Hant": "繁",
+  "zh-Hans": "简",
+  ja: "日",
+};
+
+const languageHref = (targetLocale: Locale) =>
+  `${localizePath(targetLocale, canonicalPath)}${Astro.url.search}`;
 ---
 
 <header
   class="site-header"
   data-site-header
+  data-locale={locale}
   data-owner-display-name={siteIdentity.ownerDisplayName}
 >
   <div class="header-brand">
     <button
       class="menu-toggle"
       type="button"
-      aria-label="開啟網站選單"
+      aria-label={copy.openMenu}
       aria-controls="site-menu"
       aria-expanded="false"
       data-menu-toggle
@@ -21,7 +45,7 @@ import { siteIdentity } from "../config/site";
       <span></span>
     </button>
 
-    <a class="wordmark" href="/" aria-label={`${siteIdentity.siteName} 首頁`}>
+    <a class="wordmark" href={localizePath(locale, "/")} aria-label={copy.homeAria}>
       <span class="wordmark-mark">
         <img
           class="wordmark-image"
@@ -38,12 +62,47 @@ import { siteIdentity } from "../config/site";
       </span>
     </a>
   </div>
-
+  
   <div class="header-tools">
+    <div class="header-language">
+      <details class="language-menu" data-language-menu>
+        <summary class="language-trigger" aria-label={copy.language}>
+          <span class="language-code">{languageCodes[locale]}</span>
+          <svg
+            class="language-caret"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </summary>
+
+        <div class="language-dropdown">
+          {
+            locales.map((targetLocale) => (
+              <a
+                href={languageHref(targetLocale)}
+                aria-current={
+                  targetLocale === locale ? "true" : undefined
+                }
+              >
+                {copy.languages[targetLocale]}
+              </a>
+            ))
+          }
+        </div>
+      </details>
+    </div>
     <div class="header-account" data-account>
-      <a class="login-link" href="/login" data-login-link hidden>
-  登入
-</a>
+      <a
+        class="login-link"
+        href={localizePath(locale, "/login")}
+        data-login-link
+        hidden
+      >
+        {copy.login}
+      </a>
 
 <details class="account-menu" data-account-menu hidden>
   <summary class="account-trigger">
@@ -73,25 +132,25 @@ import { siteIdentity } from "../config/site";
   </summary>
 
   <div class="account-dropdown">
-    <p data-account-email>正在讀取帳戶資料…</p>
+    <p data-account-email>{copy.accountLoading}</p>
 
-    <a href="/studio">
-      進入 Studio <span aria-hidden="true">→</span>
+    <a href={localizePath(locale, "/studio")}>
+      {copy.studio} <span aria-hidden="true">→</span>
     </a>
 
     <button type="button" data-sign-out>
-      登出
+      {copy.signOut}
     </button>
-  </div>
-</details>
     </div>
-  </div>
+</details>
+</div>
+</div>
 </header>
 
 <button
   class="menu-backdrop"
   type="button"
-  aria-label="關閉網站選單"
+  aria-label={copy.closeMenu}
   data-menu-backdrop
   hidden
 ></button>
@@ -99,41 +158,68 @@ import { siteIdentity } from "../config/site";
 <nav
   class="site-menu"
   id="site-menu"
-  aria-label="網站導覽"
+  aria-label={copy.navigation}
   aria-hidden="true"
   data-site-menu
 >
 
 
   <ul class="menu-list">
-    <li><a href="/journal">隨筆</a></li>
+  <li>
+    <a href={localizePath(locale, "/journal")}>
+      {copy.journal}
+    </a>
+  </li>
 
-    <li class="menu-item-with-children">
-      <button
-        class="submenu-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="projects-submenu"
-      >
-        專案
-        <span aria-hidden="true">›</span>
-      </button>
+  <li class="menu-item-with-children">
+    <button
+      class="submenu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="projects-submenu"
+    >
+      {copy.projects}
+      <span aria-hidden="true">›</span>
+    </button>
 
-      <ul class="submenu" id="projects-submenu">
-        <li><a href="/projects">所有專案</a></li>
-        <li><a href="/projects/elements">元素探索者</a></li>
-      </ul>
-    </li>
+    <ul class="submenu" id="projects-submenu">
+      <li>
+        <a href={localizePath(locale, "/projects")}>
+          {copy.allProjects}
+        </a>
+      </li>
 
-    <li><a href="/about">關於</a></li>
-  </ul>
+      <li>
+        <a href={localizePath(locale, "/projects/elements")}>
+          {copy.elementExplorer}
+        </a>
+      </li>
+    </ul>
+  </li>
+
+  <li>
+    <a href={localizePath(locale, "/about")}>
+      {copy.about}
+    </a>
+  </li>
+</ul>
 </nav>
 
 <script>
   import { supabase } from "../../lib/supabase";
+  import {
+    localizePath,
+    type Locale,
+  } from "../i18n/config";
+  import { headerCopy } from "../i18n/header";
 
   const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const locale = (header?.dataset.locale ?? "en") as Locale;
+  const copy = headerCopy[locale];
+  const homePath = localizePath(locale, "/");
 
+  const languageMenu =
+    document.querySelector<HTMLDetailsElement>("[data-language-menu]");
   const ownerDisplayName =
     header?.dataset.ownerDisplayName?.trim() || "Archive";
 
@@ -210,6 +296,41 @@ accountTrigger?.addEventListener("click", (event) => {
     openAccount();
   }
 });
+const languageTrigger =
+  languageMenu?.querySelector<HTMLElement>(".language-trigger");
+
+let languageCloseTimer: number | undefined;
+
+const closeLanguage = () => {
+  if (!languageMenu?.open) return;
+
+  window.clearTimeout(languageCloseTimer);
+  languageMenu.classList.add("is-closing");
+
+  languageCloseTimer = window.setTimeout(() => {
+    languageMenu.open = false;
+    languageMenu.classList.remove("is-closing");
+  }, 240);
+};
+
+const openLanguage = () => {
+  if (!languageMenu) return;
+
+  window.clearTimeout(languageCloseTimer);
+  languageMenu.classList.remove("is-closing");
+  languageMenu.open = true;
+};
+
+languageTrigger?.addEventListener("click", (event) => {
+  event.preventDefault();
+
+  if (languageMenu?.open) {
+    closeLanguage();
+  } else {
+    closeAccount();
+    openLanguage();
+  }
+});
 
   const closeSubmenus = () => {
     submenuToggles.forEach((button) => {
@@ -223,7 +344,7 @@ accountTrigger?.addEventListener("click", (event) => {
     menuToggle.setAttribute("aria-expanded", String(isOpen));
     menuToggle.setAttribute(
       "aria-label",
-      isOpen ? "關閉網站選單" : "開啟網站選單"
+      isOpen ? copy.closeMenu : copy.openMenu
     );
 
     siteMenu.classList.toggle("is-open", isOpen);
@@ -268,7 +389,9 @@ accountTrigger?.addEventListener("click", (event) => {
     if (accountMenu?.open) {
       closeAccount();
     }
-
+    if (languageMenu?.open) {
+      closeLanguage();
+    }
     setMenu(false);
   });
 
@@ -287,6 +410,9 @@ accountTrigger?.addEventListener("click", (event) => {
 
     if (accountMenu?.open && !accountMenu.contains(event.target)) {
       closeAccount();
+    }
+    if (languageMenu?.open && !languageMenu.contains(event.target)) {
+      closeLanguage();
     }
   });
 
@@ -334,6 +460,7 @@ accountTrigger?.addEventListener("click", (event) => {
   }
 };
 
+
   accountAvatarImage?.addEventListener("error", () => {
     accountAvatarImage.hidden = true;
   });
@@ -344,7 +471,7 @@ accountTrigger?.addEventListener("click", (event) => {
 
   signOutButton?.addEventListener("click", async () => {
     await supabase.auth.signOut();
-    window.location.assign("/");
+    window.location.assign(homePath);
   });
 
   const loadAccount = async () => {

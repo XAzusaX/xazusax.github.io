@@ -19,6 +19,7 @@
     "astro": "^7.3.8",
     "dompurify": "^3.4.16",
     "marked": "^18.1.0",
+    "opencc-js": "^1.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

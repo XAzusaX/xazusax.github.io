@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizePath, type Locale } from "../i18n/config";
+import { aboutCopy } from "../i18n/about";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = aboutCopy[locale];
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <main class="about-page">
+    <header class="about-hero">
+      <p class="eyebrow">{copy.eyebrow}</p>
+
+      <h1>
+        {copy.headingFirst}<br />
+        {copy.headingSecond}
+      </h1>
+
+      <p>{copy.intro}</p>
+    </header>
+
+    <section class="about-grid" aria-label={copy.navigationLabel}>
+      <article class="about-card">
+        <p class="about-card-number">01</p>
+        <h2>{copy.journalTitle}</h2>
+        <p>{copy.journalDescription}</p>
+        <a href={localizePath(locale, "/journal")}>
+          {copy.journalLink}
+        </a>
+      </article>
+
+      <article class="about-card">
+        <p class="about-card-number">02</p>
+        <h2>{copy.projectsTitle}</h2>
+        <p>{copy.projectsDescription}</p>
+        <a href={localizePath(locale, "/projects")}>
+          {copy.projectsLink}
+        </a>
+      </article>
+
+      <article class="about-card about-card-note">
+        <p class="about-card-number">03</p>
+        <h2>{copy.nowTitle}</h2>
+        <p>{copy.nowDescription}</p>
+      </article>
+    </section>
+
+    <section class="about-note">
+      <p class="eyebrow">{copy.noteEyebrow}</p>
+      <p>{copy.note}</p>
+    </section>
+  </main>
+</BaseLayout>

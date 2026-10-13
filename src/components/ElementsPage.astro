@@ -1,0 +1,603 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { elements } from "../data/elements";
+import { localizePath, type Locale } from "../i18n/config";
+import { elementExplorerCopy } from "../i18n/elements";
+import {
+  getElementName,
+  getElementSearchText,
+} from "../i18n/element-display";
+import { elementAttributionCopy } from "../i18n/element-attribution";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = elementExplorerCopy[locale];
+const attribution = elementAttributionCopy[locale];
+
+const elementDisplayName = (element: (typeof elements)[number]) =>
+  getElementName(element, locale);
+
+const elementDetailPath = (symbol: string) =>
+  `${localizePath(locale, "/projects/elements/read")}?symbol=${encodeURIComponent(symbol)}`;
+
+const clientCopy = {
+  indexedCount: copy.indexedCount(elements.length),
+  filteredCountTemplate: copy.filteredCount(0).replace("0", "__COUNT__"),
+  noResults: copy.noResults,
+  moreResultsTemplate: copy.moreResults(0).replace("0", "__COUNT__"),
+  atomNumber: copy.atomNumber,
+};
+
+const categoryOptions = [
+  ...new Map(
+    elements.map((element) => [
+      element.category,
+      {
+        value: element.category,
+        label: copy.categories[element.category] ?? element.category,
+      },
+    ]),
+  ).values(),
+];
+
+const categoryKey = (category: string) => {
+  const keys: Record<string, string> = {
+    "alkali metal": "alkali-metal",
+    "alkaline earth metal": "alkaline-earth",
+    "transition metal": "transition-metal",
+    "post-transition metal": "post-transition-metal",
+    metalloid: "metalloid",
+    "polyatomic nonmetal": "nonmetal",
+    "diatomic nonmetal": "nonmetal",
+    "noble gas": "noble-gas",
+    lanthanide: "lanthanide",
+    actinide: "actinide",
+  };
+
+  return keys[category] ?? "unknown";
+};
+
+const lanthanideRow =
+  Math.min(
+    ...elements
+      .filter((element) => element.category === "lanthanide")
+      .map((element) => element.ypos),
+  ) + 1;
+
+const actinideRow =
+  Math.min(
+    ...elements
+      .filter((element) => element.category === "actinide")
+      .map((element) => element.ypos),
+  ) + 1;
+---
+
+<BaseLayout
+  title={copy.title}
+  description={copy.description}
+>
+  <main class="elements-page">
+    <header class="elements-hero">
+      <div>
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.heading}</h1>
+        <p>{copy.intro}</p>
+      </div>
+
+      <div
+        class="elements-count"
+        aria-label={copy.indexedCount(elements.length)}
+      >
+        <strong>{elements.length}</strong>
+        <span>{copy.indexedLabel}</span>
+      </div>
+    </header>
+
+<section
+  class="elements-controls"
+  aria-label={copy.controlsLabel}
+  data-indexed-count={clientCopy.indexedCount}
+  data-filtered-count-template={clientCopy.filteredCountTemplate}
+  data-no-results={clientCopy.noResults}
+  data-more-results-template={clientCopy.moreResultsTemplate}
+  data-atom-number={clientCopy.atomNumber}
+>      
+  <div class="elements-controls-toolbar">
+        <button
+          class="elements-controls-toggle"
+          type="button"
+          data-controls-toggle
+          aria-expanded="false"
+          aria-controls="element-controls-panel"
+        >
+          <span class="elements-controls-toggle-label">{copy.controlsLabel}</span>
+          <span class="elements-controls-summary" data-element-summary>
+            {elements.length} {copy.elementsUnit}
+          </span>
+          <svg
+            class="elements-controls-arrow"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        class="elements-controls-panel"
+        id="element-controls-panel"
+        data-controls-panel
+        hidden
+      >
+        <div class="elements-search-panel">
+          <label class="elements-search" for="element-search">
+            <span>{copy.searchLabel}</span>
+            <input
+              id="element-search"
+              type="search"
+              placeholder={copy.searchPlaceholder}
+              autocomplete="off"
+              data-element-search
+            />
+          </label>
+
+          <div
+            class="element-search-results"
+            data-element-results
+            aria-live="polite"
+            hidden
+          ></div>
+        </div>
+
+        <div class="elements-filter-area">
+          <p>{copy.categoryLabel}</p>
+
+          <div class="elements-filters" data-element-filters>
+            <button
+              class="element-filter is-active"
+              type="button"
+              data-category-filter=""
+            >
+              {copy.allCategories}
+            </button>
+
+            {
+              categoryOptions.map((category) => (
+                <button
+                  class="element-filter"
+                  type="button"
+                  data-category-filter={category.value}
+                >
+                  {category.label}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="elements-position-filters">
+          <label>
+            <span>{copy.periodLabel}</span>
+            <select data-period-filter>
+              <option value="">{copy.allPeriods}</option>
+              {
+                Array.from({ length: 7 }, (_, index) => (
+                  <option value={String(index + 1)}>
+                    {index + 1}
+                  </option>
+                ))
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>{copy.groupLabel}</span>
+            <select data-group-filter>
+              <option value="">{copy.allGroups}</option>
+              {
+                Array.from({ length: 18 }, (_, index) => (
+                  <option value={String(index + 1)}>
+                    {index + 1}
+                  </option>
+                ))
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>{copy.blockLabel}</span>
+            <select data-block-filter>
+              <option value="">{copy.allBlocks}</option>
+              <option value="s">s</option>
+              <option value="p">p</option>
+              <option value="d">d</option>
+              <option value="f">f</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <p class="sr-only" data-element-count aria-live="polite">
+        {copy.indexedCount(elements.length)}
+      </p>
+    </section>
+
+    <section class="periodic-table-section" aria-labelledby="table-title">
+      <div class="periodic-table-heading">
+        <div>
+          <p class="eyebrow">{copy.tableEyebrow}</p>
+          <h2 id="table-title">{copy.tableHeading}</h2>
+        </div>
+
+        <p>{copy.tableHint}</p>
+      </div>
+      
+      <div class="periodic-table-scroll">
+        <div class="periodic-table" data-periodic-table>
+          <div class="periodic-axis" aria-hidden="true">
+            {
+              Array.from({ length: 18 }, (_, index) => (
+                <span
+                  class="periodic-axis-group"
+                  style={`grid-column: ${index + 2}; grid-row: 1;`}
+                >
+                  {index + 1}
+                </span>
+              ))
+            }
+
+            {
+              Array.from({ length: 7 }, (_, index) => (
+                <span
+                  class="periodic-axis-period"
+                  style={`grid-column: 1; grid-row: ${index + 2};`}
+                >
+                  {index + 1}
+                </span>
+              ))
+            }
+
+            <span
+              class="periodic-axis-series"
+              style={`grid-column: 1; grid-row: ${lanthanideRow};`}
+            >
+              {copy.lanthanides}
+            </span>
+
+            <span
+              class="periodic-axis-series"
+              style={`grid-column: 1; grid-row: ${actinideRow};`}
+            >
+              {copy.actinides}
+            </span>
+          </div>
+
+          {
+            elements.map((element) => (
+              <a
+                class="element-cell"
+                href={elementDetailPath(element.symbol)}
+                style={`grid-column: ${element.xpos + 1}; grid-row: ${element.ypos + 1};`}
+                data-element-cell
+                data-category={element.category}
+                data-period={element.period ?? ""}
+                data-group={element.group ?? ""}
+                data-block={element.block ?? ""}
+                data-symbol={element.symbol.toLocaleLowerCase()}
+                data-number={String(element.number)}
+                data-name-zh={element.nameZh}
+                data-name-display={elementDisplayName(element)}
+                data-name-en={element.name.toLocaleLowerCase()}
+               data-search={getElementSearchText(element)}
+                data-category-key={categoryKey(element.category)}
+                aria-label={`${elementDisplayName(element)} ${element.name}，${copy.atomNumber} ${element.number}`}
+              >
+                <span class="element-number">{element.number}</span>
+                <strong>{element.symbol}</strong>
+                <span class="element-name">{elementDisplayName(element)}</span>
+              </a>
+            ))
+          }
+        </div>
+        
+      </div>
+    </section>
+
+    <footer class="elements-attribution">
+      <p>
+        {attribution.sourcePrefix}
+        <a
+          href="https://github.com/Bowserinator/Periodic-Table-JSON"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Bowserinator / Periodic-Table-JSON
+        </a>
+        {attribution.licensePrefix}
+        <a
+          href="https://creativecommons.org/licenses/by-sa/3.0/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          CC BY-SA 3.0
+        </a>
+        {attribution.suffix}
+      </p>
+    </footer>
+  </main>
+
+<script>
+  const controls =
+    document.querySelector<HTMLElement>(".elements-controls");
+
+  const clientCopy = {
+    indexedCount: controls?.dataset.indexedCount ?? "",
+    filteredCountTemplate:
+      controls?.dataset.filteredCountTemplate ?? "__COUNT__",
+    noResults: controls?.dataset.noResults ?? "",
+    moreResultsTemplate:
+      controls?.dataset.moreResultsTemplate ?? "__COUNT__",
+    atomNumber: controls?.dataset.atomNumber ?? "",
+  };
+  const searchInput =
+    document.querySelector<HTMLInputElement>("[data-element-search]");
+  const filters =
+    document.querySelectorAll<HTMLButtonElement>("[data-category-filter]");
+  const cells =
+    document.querySelectorAll<HTMLAnchorElement>("[data-element-cell]");
+  const count =
+    document.querySelector<HTMLParagraphElement>("[data-element-count]");
+  const results =
+    document.querySelector<HTMLDivElement>("[data-element-results]");
+const controlsToggle =
+  document.querySelector<HTMLButtonElement>("[data-controls-toggle]");
+
+const controlsPanel =
+  document.querySelector<HTMLElement>("[data-controls-panel]");
+
+const controlsSummary =
+  document.querySelector<HTMLElement>("[data-element-summary]");
+
+let controlsAreOpen = false;
+let closePanelTimer: number | undefined;
+
+const setControlsPanel = (isOpen: boolean) => {
+  if (!controlsToggle || !controlsPanel) return;
+
+  controlsAreOpen = isOpen;
+  window.clearTimeout(closePanelTimer);
+
+  controlsToggle.setAttribute("aria-expanded", String(isOpen));
+  controlsToggle.classList.toggle("is-open", isOpen);
+
+  if (isOpen) {
+    controlsPanel.hidden = false;
+
+    window.requestAnimationFrame(() => {
+      if (controlsAreOpen) {
+        controlsPanel?.classList.add("is-open");
+      }
+    });
+
+    return;
+  }
+
+  controlsPanel.classList.remove("is-open");
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  closePanelTimer = window.setTimeout(() => {
+    if (!controlsAreOpen && controlsPanel) {
+      controlsPanel.hidden = true;
+    }
+  }, 540);
+};
+
+controlsToggle?.addEventListener("click", () => {
+  setControlsPanel(!controlsAreOpen);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && controlsAreOpen) {
+    setControlsPanel(false);
+    controlsToggle?.focus();
+  }
+});
+
+  const periodFilter =
+    document.querySelector<HTMLSelectElement>("[data-period-filter]");
+  const groupFilter =
+    document.querySelector<HTMLSelectElement>("[data-group-filter]");
+
+  const blockFilter =
+    document.querySelector<HTMLSelectElement>("[data-block-filter]");
+
+  let activeCategory = "";
+let activePeriod = "";
+let activeGroup = "";
+let activeBlock = "";
+
+const getFilteredCells = () =>
+  [...cells].filter((cell) => {
+    const matchesCategory =
+      !activeCategory || cell.dataset.category === activeCategory;
+
+    const matchesPeriod =
+      !activePeriod || cell.dataset.period === activePeriod;
+
+    const matchesGroup =
+      !activeGroup || cell.dataset.group === activeGroup;
+
+    const matchesBlock =
+      !activeBlock || cell.dataset.block === activeBlock;
+
+    return (
+      matchesCategory &&
+      matchesPeriod &&
+      matchesGroup &&
+      matchesBlock
+    );
+  });
+
+  const updatePeriodicTable = () => {
+  const visibleCells = getFilteredCells();
+
+    cells.forEach((cell) => {
+      cell.hidden = !visibleCells.includes(cell);
+    });
+
+    const hasActiveFilters = Boolean(
+      activeCategory || activePeriod || activeGroup || activeBlock
+    );
+
+    if (count) {
+      count.textContent = hasActiveFilters
+        ? withCount(clientCopy.filteredCountTemplate, visibleCells.length)
+        : clientCopy.indexedCount;
+    }
+
+    if (controlsSummary) {
+      controlsSummary.textContent = hasActiveFilters
+        ? withCount(clientCopy.filteredCountTemplate, visibleCells.length)
+        : clientCopy.indexedCount;
+    }
+
+    controlsToggle?.classList.toggle(
+      "has-active-filters",
+      hasActiveFilters
+    );
+  };
+
+  const getSearchResults = () => {
+    const rawQuery = searchInput?.value.trim() ?? "";
+    const query = rawQuery.toLocaleLowerCase();
+
+    if (!query) return [];
+
+    const isNumberQuery = /^\d+$/.test(query);
+    const isLatinQuery = /^[a-z]+$/.test(query);
+
+    return getFilteredCells().filter((cell) => {
+      if (isNumberQuery) {
+        return cell.dataset.number === query;
+      }
+
+      if (isLatinQuery) {
+        const symbol = cell.dataset.symbol ?? "";
+        const englishName = cell.dataset.nameEn ?? "";
+
+        return (
+          symbol.startsWith(query) ||
+          (query.length >= 3 && englishName.includes(query))
+        );
+      }
+
+      return (cell.dataset.search ?? "").includes(query);
+    });
+  };
+  const withCount = (template: string, count: number) =>
+  template.replace("__COUNT__", String(count));
+  const formatSymbol = (symbol: string) =>
+    symbol.slice(0, 1).toUpperCase() + symbol.slice(1).toLowerCase();
+
+  const createResult = (cell: HTMLAnchorElement) => {
+    const link = document.createElement("a");
+    link.className = "element-search-result";
+    link.href = cell.href;
+
+    const symbol = document.createElement("strong");
+    symbol.textContent = formatSymbol(cell.dataset.symbol ?? "");
+
+    const name = document.createElement("span");
+    name.textContent =
+      cell.dataset.nameDisplay ??
+      cell.dataset.nameZh ??
+      cell.dataset.nameEn ??
+      "";
+
+    const number = document.createElement("small");
+    number.textContent =
+  `${clientCopy.atomNumber} ${cell.dataset.number ?? ""}`;
+
+    link.append(symbol, name, number);
+    return link;
+  };
+
+  const renderSearchResults = () => {
+    if (!results) return;
+
+    const rawQuery = searchInput?.value.trim() ?? "";
+
+    results.replaceChildren();
+
+    if (!rawQuery) {
+      results.hidden = true;
+      return;
+    }
+
+    const matchedElements = getSearchResults();
+    results.hidden = false;
+
+    if (matchedElements.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "element-search-empty";
+      empty.textContent = clientCopy.noResults;
+      results.append(empty);
+      return;
+    }
+
+    matchedElements.slice(0, 12).forEach((cell) => {
+      results.append(createResult(cell));
+    });
+
+    if (matchedElements.length > 12) {
+      const more = document.createElement("p");
+      more.className = "element-search-more";
+      more.textContent = withCount(
+        clientCopy.moreResultsTemplate,
+        matchedElements.length - 12
+      );      
+      results.append(more);
+    }
+  };
+
+  searchInput?.addEventListener("input", renderSearchResults);
+
+ filters.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeCategory = button.dataset.categoryFilter ?? "";
+
+    filters.forEach((otherButton) => {
+      otherButton.classList.toggle("is-active", otherButton === button);
+    });
+
+    updatePeriodicTable();
+    renderSearchResults();
+  });
+});
+
+periodFilter?.addEventListener("change", () => {
+  activePeriod = periodFilter.value;
+  updatePeriodicTable();
+  renderSearchResults();
+});
+
+groupFilter?.addEventListener("change", () => {
+  activeGroup = groupFilter.value;
+  updatePeriodicTable();
+  renderSearchResults();
+});
+
+blockFilter?.addEventListener("change", () => {
+  activeBlock = blockFilter.value;
+  updatePeriodicTable();
+  renderSearchResults();
+});
+</script>
+</BaseLayout>
