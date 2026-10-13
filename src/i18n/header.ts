@@ -2,6 +2,7 @@ import type { Locale } from "./config";
 
 type HeaderCopy = {
   homeAria: string;
+  siteSubtitle: string;
   openMenu: string;
   closeMenu: string;
   navigation: string;
@@ -21,6 +22,7 @@ type HeaderCopy = {
 export const headerCopy = {
   en: {
     homeAria: "Reverie Archive home",
+    siteSubtitle: "Personal Archive",
     openMenu: "Open site menu",
     closeMenu: "Close site menu",
     navigation: "Site navigation",
@@ -44,6 +46,7 @@ export const headerCopy = {
 
   "zh-Hant": {
     homeAria: "Reverie Archive 首頁",
+    siteSubtitle: "個人檔案",
     openMenu: "開啟網站選單",
     closeMenu: "關閉網站選單",
     navigation: "網站導覽",
@@ -67,6 +70,7 @@ export const headerCopy = {
 
   "zh-Hans": {
     homeAria: "Reverie Archive 首页",
+    siteSubtitle: "个人档案",
     openMenu: "打开网站菜单",
     closeMenu: "关闭网站菜单",
     navigation: "网站导航",
@@ -90,6 +94,7 @@ export const headerCopy = {
 
   ja: {
     homeAria: "Reverie Archive ホーム",
+    siteSubtitle: "個人アーカイブ",
     openMenu: "サイトメニューを開く",
     closeMenu: "サイトメニューを閉じる",
     navigation: "サイトナビゲーション",

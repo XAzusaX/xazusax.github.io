@@ -1,6 +1,5 @@
 export const siteIdentity = {
   siteName: "Reverie Archive",
-  siteSubtitle: "個人檔案館",
 
   // 右上角登入後顯示的名字；之後只需改這一行
   ownerDisplayName: "Azusa",
